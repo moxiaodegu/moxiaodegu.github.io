@@ -1,9 +1,9 @@
 # Basic
-title: Li Mei
+title: Yanli Ma
 subtitle: 个人技术博客
-welcome_message: 主要是记录个人对技术的理解和开发过程中遇到的问题，欢迎了解更多。
-description:  嗨，我是李梅，一名前端开发者。
-creator: Li Mei
+welcome_message: 主要是记录个人对技术的理解和开发过程中遇到的问题。
+description:  嗨，我是马艳丽，一名前端开发者。
+creator: Yanli Ma
 
 url: "https://moxiaodegu.github.io/"
 
@@ -43,8 +43,8 @@ comment:
     
 # Social
 social:
-    github: limeii
-    mail: limei90s@foxmail.com
+    github: moxiaodegu
+    mail: 14747425436@163.com
 
 # Google Analytics
 ga:
