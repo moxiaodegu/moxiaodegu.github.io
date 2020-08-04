@@ -1,35 +1,52 @@
-# Dependencies
-markdown:         kramdown
-highlighter:      rouge
+# Basic
+title: Li Mei
+subtitle: 个人技术博客
+welcome_message: 主要是记录个人对技术的理解和开发过程中遇到的问题，欢迎了解更多。
+description:  嗨，我是李梅，一名前端开发者。
+creator: Li Mei
 
-# Setup
-title:            马艳丽
-tagline:          'A Jekyll theme'
-description:      'The <a href="http://hyde.getpoole.com" target="_blank">Hyde</a> theme for <a href="http://jekyllrb.com" target="_blank">Jekyll</a>, refreshed.'
-url:              https://moxiaodegu.github.io/
-baseurl:          '/hydeout'
-                  # the optional subpath of your site, e.g. "/blog"
-                  # NB: This applies to all pages in your Jekyll site. 
-                  # If you want to move just the blog index pages but keep
-                  # other pages at root, see the paginate_path and
-                  # sidebar_blog_link below.
+url: "https://moxiaodegu.github.io/"
 
-author:
-  name:           'Andrew Fong'
-  url:            https://moxiaodegu.github.io/
+permalink: /:year/:month/:title/
 
-paginate:         5
-# paginate_path:    '/page:num'
-                    # Or '/blog/page:num' if you want to move your index pages
+# Format
+highlighter: rouge
 
-plugins:
-  - jekyll-feed
-  - jekyll-gist
-  - jekyll-paginate
+# supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
+cover_color: slate
 
-# Sidebar link settings
-sidebar_home_link:  true
-# sidebar_blog_link:  '/blog'   # By default, your home page is your blog
-                                # page. If you change your paginate_path,
-                                # set this to the root of the paginate_path
-                                # to enable a separate blog link.
+# The blog button should not be removed.
+blog_button:
+    title: 博客
+    description: 访问博客
+
+tag_button:
+    title: 标签
+    description: 技术文章分类
+    url: 'https://moxiaodegu.github.io/'  
+
+# Navigation buttons in the front page.
+nav:
+    #- {title: 简历, description: 我的简历, url: 'https://github.com/limeii'}
+    - {title: Git, description: 个人代码, url: 'https://github.com/moxiaodegu'}
+    # - {title: Another Button, description: A button, url: 'http://example.com'}
+
+# Pagination
+plugins: [jekyll-paginate]
+paginate: 10
+paginate_path: "page/:num/"
+
+# Comment
+comment:
+    disqus: 
+    # duoshuo: 
+    
+# Social
+social:
+    github: limeii
+    mail: limei90s@foxmail.com
+
+# Google Analytics
+ga:
+     id: UA-142143336-1
+     host: auto
