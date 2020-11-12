@@ -1,2 +1,2 @@
-# moxiaodegu.github.io
-My tech blog
+
+# [My tech blog](https://moxiaodegu.github.io/)
