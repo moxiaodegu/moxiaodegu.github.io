@@ -1954,7 +1954,7 @@ button,
       margin: -2.22222em 0 4.44444em -2.22222em;
       padding: 2.22222em;
       width: calc(100% + 4.44444em); }
-  #sidebar .toggle {
+  #header .toggle {
     text-decoration: none;
     -moz-transition: left 0.5s ease;
     -webkit-transition: left 0.5s ease;
@@ -1975,7 +1975,7 @@ button,
     top: 0;
     width: 6em;
     z-index: 10000; }
-    #sidebar .toggle:before {
+    #header .toggle:before {
       -moz-osx-font-smoothing: grayscale;
       -webkit-font-smoothing: antialiased;
       display: inline-block;
@@ -1986,7 +1986,7 @@ button,
       text-transform: none !important;
       font-family: 'Font Awesome 5 Free';
       font-weight: 900; }
-    #sidebar .toggle:before {
+    #header .toggle:before {
       content: '\f0c9';
       font-size: 2rem;
       height: inherit;
@@ -2008,13 +2008,13 @@ button,
           margin: -1.66667em 0 3.33333em -1.66667em;
           padding: 1.66667em;
           width: calc(100% + 3.33333em); }
-      #sidebar .toggle {
+      #header .toggle {
         height: 6.25em;
         left: 24em;
         line-height: 6.25em;
         text-indent: 5em;
         width: 5em; }
-        #sidebar .toggle:before {
+        #header .toggle:before {
           font-size: 1.5rem; }
       #sidebar.inactive {
         margin-left: -24em; } }
@@ -2041,25 +2041,25 @@ button,
           display: block;
           height: 4em;
           width: 100%; }
-      #sidebar .toggle {
+      #header .toggle {
         text-indent: 6em;
         width: 6em; }
-        #sidebar .toggle:before {
+        #header .toggle:before {
           font-size: 1.5rem;
           margin-left: -0.4375em; }
       body.is-preload #sidebar {
         display: none; } }
   @media screen and (max-width: 736px) {
-    #sidebar .toggle {
+    #header .toggle {
       text-indent: 7.25em;
       width: 7.25em; }
-      #sidebar .toggle:before {
+      #header .toggle:before {
         color: #7f888f;
         margin-left: -0.0625em;
         margin-top: -0.25em;
         font-size: 1.1rem;
         z-index: 1; }
-      #sidebar .toggle:after {
+      #header .toggle:after {
         background: rgba(222, 225, 226, 0.75);
         border-radius: 0.375em;
         content: '';
