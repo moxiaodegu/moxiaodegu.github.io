@@ -1,5 +1,5 @@
 # Site settings
-title: '蘑小De菇的技术博客'
+title: '蘑小De菇个人技术博客'
 description: ''
 url: 'https://moxiaodegu.github.io/'
 baseurl: '/'
@@ -8,12 +8,12 @@ baseurl: '/'
 # disable_landing_page: true
 
 author:
-  name: 'moxiaodegu'
-  email: josh@joshgerdes.com
-  twitter_username: joshgerdes
-  facebook_username: joshgerdes
-  github_username:  joshgerdes
-  linkedin_username:  joshgerdes
+  name: '蘑小De菇'
+  email: moxiaodegu@163.com
+  twitter_username: moxiaodegu
+  # facebook_username: joshgerdes
+  github_username:  moxiaodegu
+  # linkedin_username:  joshgerdes
 
 defaults:
   -
