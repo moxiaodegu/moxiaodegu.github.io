@@ -1,6 +1,5 @@
 ---
-title: 
-tags: blog 
+title: Tags
 layout: post
 ---
 

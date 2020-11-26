@@ -1,2 +1,0 @@
-I"g<p>在上一篇文章【<a href="https://limeii.github.io/2019/05/js-lexical-environment/">JS：深入理解JavaScript-词法环境</a>】详细介绍了词法环境，它是在V8引擎词法分析阶段用来登记变量的，这样在引擎真正执行代码的时候，就知道去哪里拿变量的值。也提到过，每次执行回调函数的时候，会把方法以<code class="language-plaintext highlighter-rouge">执行上下文（Execution Context）</code>的方式压入<code class="language-plaintext highlighter-rouge">执行栈（Call Stack）</code>，执行完以后会被弹出执行栈。</p>
-:ET

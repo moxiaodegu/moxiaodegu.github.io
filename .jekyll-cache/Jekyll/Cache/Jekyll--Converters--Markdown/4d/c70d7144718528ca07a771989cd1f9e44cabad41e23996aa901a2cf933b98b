@@ -1,2 +1,0 @@
-I"<p>在上一篇文章【<a href="https://limeii.github.io/2019/08/rxjs-caching/">RxJS：如何通过RxJS实现缓存</a>】里介绍了如何在 Anuglar2+ 中结合 HttpClient 和 ReplaySubject 缓存 API Response 数据，减少重复调用 API 从而提高性能，这种方法适用于每次返回的 Response 数据都不变的常量 API。在实际开发过程中，还有一种 API 返回的值随着时间会有变化，这个时候就需要去更新 RxJS缓存里的值，从用户体检的角度出发，先在页面显示一个消息通知用户数据有更新，让用户选择是否需要更新页面内容，而不是直接在每次缓存更新以后直接刷新页面数据。接下来就来介绍如何基于 RxJS 实现简单的消息通知机制。</p>
-:ET

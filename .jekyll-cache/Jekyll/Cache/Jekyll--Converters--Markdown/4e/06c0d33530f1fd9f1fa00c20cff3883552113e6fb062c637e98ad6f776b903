@@ -1,2 +1,0 @@
-I"�<p>在文章【<a href="https://limeii.github.io/2019/05/js-prototype/">JS：深入理解JavaScript-原型</a>】详细介绍了原型和<code class="language-plaintext highlighter-rouge">new</code> <code class="language-plaintext highlighter-rouge">Object.create()</code>在创建对象和实现继承的区别。JS的继承是基于原型（prototype）实现的，再理解原型之后，就很容易理解JS的继承方式了。</p>
-:ET

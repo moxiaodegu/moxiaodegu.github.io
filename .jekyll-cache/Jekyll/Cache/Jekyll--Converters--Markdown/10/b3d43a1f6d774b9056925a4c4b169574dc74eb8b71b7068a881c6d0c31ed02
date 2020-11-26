@@ -1,7 +1,0 @@
-I"�<p>在这篇文章里会介绍如下内容：</p>
-<ul>
-  <li>什么是原型和原型链</li>
-  <li><code class="language-plaintext highlighter-rouge">prototype</code> 和<code class="language-plaintext highlighter-rouge">__proto__</code>有什么区别</li>
-  <li><code class="language-plaintext highlighter-rouge">new</code> 和<code class="language-plaintext highlighter-rouge">Object.create()</code>创建对象和实现继承的区别</li>
-</ul>
-:ET

@@ -17,11 +17,11 @@ cover_color: slate
 
 # The blog button should not be removed.
 blog_button:
-    title: 博客
+    title: Blog
     description: 访问博客
 
 tag_button:
-    title: 标签
+    title: Tag
     description: 文章分类
     url: 'https://moxiaodegu.github.io/tag/'  
 
@@ -41,7 +41,7 @@ comment:
     
 # Social
 social:
-    github: 蘑小De菇
+    github: moxiaodegu
     mail: moxiaodegu@163.com
 
 # Google Analytics

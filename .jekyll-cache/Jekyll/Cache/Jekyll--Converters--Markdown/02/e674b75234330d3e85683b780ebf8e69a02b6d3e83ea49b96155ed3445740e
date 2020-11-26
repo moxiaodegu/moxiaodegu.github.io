@@ -1,5 +1,0 @@
-I"�<p>在文章【<a href="https://limeii.github.io/2019/05/js-execution-context/">JS：深入理解JavaScript-执行上下文</a>】中介绍了代码在执行栈是如何运行的，假设有如下代码：
-```js
-function foo() {
-    var a = 2;</p>
-:ET

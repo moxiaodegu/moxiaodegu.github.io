@@ -1,8 +1,0 @@
-I"�<p>在这篇文章中会介绍以下内容：</p>
-<ul>
-  <li>为什么 Angular 需要编译。</li>
-  <li>Angular 编译机制：JiT vs AoT。</li>
-  <li>AoT 的工作原理（ngc）。</li>
-  <li>AoT 对性能的影响。</li>
-</ul>
-:ET
