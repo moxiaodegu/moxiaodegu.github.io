@@ -1,3 +1,2 @@
-# https://limeii.github.io/
+# My tech blog (https://moxiaodegu.github.io/)
 
-My tech blog

@@ -40,8 +40,8 @@
   width: 100%;
   max-width: none;
   height: 100%;
-  background: url(../images/background-cover.jpg) top left no-repeat $gray-darker;
-  background-size: cover;
+  background: url(../../assets/images/background-cover.jpg) top left no-repeat;
+  background-size: 100% 100%;
 }
 
   .panel-cover--collapsed {
@@ -57,7 +57,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    @include linear-gradient(140deg, rgba(#444444,.6) 20%, rgba(#000000,.9));
+    @include linear-gradient(140deg, rgba(#444444,.6) 20%, rgba(#000000,.6));
   }
 
   .panel-cover__logo {

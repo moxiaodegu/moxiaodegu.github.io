@@ -22,14 +22,12 @@ blog_button:
 
 tag_button:
     title: 标签
-    description: 技术文章分类
-    url: 'https://limeii.github.io/tag/'  
+    description: 文章分类
+    url: 'https://moxiaodegu.github.io/tag/'  
 
 # Navigation buttons in the front page.
 nav:
-    #- {title: 简历, description: 我的简历, url: 'https://github.com/limeii'}
-    - {title: Git, description: 个人代码, url: 'https://github.com/limeii'}
-    # - {title: Another Button, description: A button, url: 'http://example.com'}
+    - {title: GitHub, description: 个人代码, url: 'https://github.com/moxiaodegu'}
 
 # Pagination
 plugins: [jekyll-paginate]
@@ -43,8 +41,8 @@ comment:
     
 # Social
 social:
-    github: limeii
-    mail: limei90s@foxmail.com
+    github: 蘑小De菇
+    mail: moxiaodegu@163.com
 
 # Google Analytics
 ga:
