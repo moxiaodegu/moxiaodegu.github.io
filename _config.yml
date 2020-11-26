@@ -2,7 +2,7 @@
 title: 蘑小De菇
 subtitle: 个人技术博客
 description: hi，我是蘑小De菇，一名前端开发者。
-url: 'https://moxiaodegu.github.io/#blog'
+url: https://moxiaodegu.github.io/#blog
 baseurl: '/'
 # google_analytics: 'UA-XXXXXX-X'
 # disqus_shortname: 'your-disqus-name'
@@ -16,13 +16,15 @@ author:
   github_username:  moxiaodegu
   # linkedin_username:  joshgerdes
 
-defaults:
-  -
-    scope:
-      path: ''
-      type: 'posts'
-    values:
-        layout: 'post'
+tag:
+  name: Tag
+  url: https://moxiaodegu.github.io/tags/
+  description: 查看标签
+
+git:
+  name: GitHub
+  url: https://www.github.com/moxiaodegu
+  description: 访问GitHub
 
 # Build settings
 destination: _site
@@ -42,4 +44,4 @@ kramdown:
   hard_wrap: false
 
 plugins: ['jekyll-paginate']
-exclude: ['README.md', 'Gemfile', 'Gemfile.lock', 'screenshot.png']
+exclude: ['README.md', 'Gemfile', 'Gemfile.lock']

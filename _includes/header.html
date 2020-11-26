@@ -25,10 +25,8 @@
 						<ul class="navigation">
 							<li class="navigation__item"><a href="./#blog" title="访问博客" class="blog-button">Blog</a>
 							</li>
-							<li class="navigation__item"><a href="./#blog" title="查看标签" class="blog-button"></a>Tag</li>
-							<li class="navigation__item"><a
-									href="https://www.github.com/{{ site.author.github_username }}" title="访问GitHub"
-									target="_blank" class="blog-button"></a>Tag</li>
+							<li class="navigation__item"><a href="{{site.tags.url}}" title="{{site.tags.description}}" class="blog-button"></a>{{site.tags.name}}</li>
+							<li class="navigation__item"><a href="{{site.git.url}}" title="{{site.git.description}}" class="blog-button"></a>{{site.git.name}}</li>
 						</ul>
 					</nav>
 
