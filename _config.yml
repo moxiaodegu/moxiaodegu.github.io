@@ -29,10 +29,12 @@ git:
 
 # Build settings
 destination: _site
+gems: [jekyll-paginate]
 paginate: 10
 permalink: /:year/:title/
 kramdown: kramdown
 highlighter: rouge
+
 
 sass:
     sass_dir: _sass
