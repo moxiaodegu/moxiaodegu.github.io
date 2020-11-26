@@ -2,7 +2,7 @@
 title: moxiaodegu
 description: 'Jekyll-Uno - a minimal, responsive theme for Jekyll'
 url: 'https://moxiaodegu.github.io/'
-baseurl: '/jekyll-uno'
+baseurl: '/'
 # google_analytics: 'UA-XXXXXX-X'
 # disqus_shortname: 'your-disqus-name'
 # disable_landing_page: true
