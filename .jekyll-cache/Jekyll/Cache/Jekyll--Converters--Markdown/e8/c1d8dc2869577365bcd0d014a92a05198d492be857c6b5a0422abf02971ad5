@@ -1,0 +1,101 @@
+I"v&<p>在web应用里通常会有这样一种场景：比如支付宝信用卡还款，假设支付宝收费标准如下：</p>
+
+<ul>
+  <li>普通用户，2000元以内免费，2000-50000收费10元，50000元以上收费15元。</li>
+  <li>砖石会员，5000元以内免费，5000-50000收费5元，50000元以上收费10元。</li>
+</ul>
+
+<p>现在需要做一个页面，用来专门用来收集这样的收费标准，以后可能需要增加新的收费标准或者修改现有的收费标准。
+这个页面可以设计成这样：
+<img src="https://limeii.github.io/assets/images/posts/angular/angular-dynamic-form.gif" alt="dynamic form" height="100%" width="100%" /></p>
+
+<p>在angular用dynamic form可以很容易实现这种动态加载表单的效果，并且可以轻松实现对每一个field进行校验。接下来介绍如何在angular里实现上面的表单。</p>
+
+<h4 id="开发环境如下">开发环境如下：</h4>
+<p><img src="https://limeii.github.io/assets/images/posts/angular/dynamicform-env.png" alt="dynamic form" height="100%" width="100%" /></p>
+
+<h4 id="项目结构如下">项目结构如下：</h4>
+<p><img src="https://limeii.github.io/assets/images/posts/angular/angular-dynamic-form-structure.png" alt="dynamic form" height="100%" width="100%" /></p>
+
+<p><strong>第一步，需要在app.module.ts引入FormsModule和ReactiveFormsModule</strong></p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//app.module.ts</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">FormsModule</span><span class="p">,</span> <span class="nx">ReactiveFormsModule</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">@angular/forms</span><span class="dl">'</span>
+</code></pre></div></div>
+
+<p><strong>第二步，创建DynamicFeeComponent，这个是每次动态添加的form表单</strong></p>
+
+<p>详细代码：</p>
+<ul>
+  <li><a href="https://github.com/LiMeii/angular-dynamic-form/blob/master/src/app/dynamic-fee/dynamic-fee.component.html">angular-dynamic-form-dynamic-fee.component.html</a></li>
+  <li><a href="https://github.com/LiMeii/angular-dynamic-form/blob/master/src/app/dynamic-fee/dynamic-fee.component.ts">angular-dynamic-form-dynamic-fee.component.ts</a></li>
+</ul>
+
+<p><strong>第三步，在app.component.ts中用FormArray动态添加DynamicFeeComponent</strong></p>
+
+<p>详细代码：</p>
+<ul>
+  <li><a href="https://github.com/LiMeii/angular-dynamic-form/blob/master/src/app/app.component.html">angular-dynamic-form-app.component.html</a></li>
+  <li><a href="https://github.com/LiMeii/angular-dynamic-form/blob/master/src/app/app.component.ts">angular-dynamic-form-app.component.ts</a></li>
+</ul>
+
+<p>需要注意的是，formarray中每一项都是一个独立的formgroup，本质上来说在app.componnet中就是有两层嵌套的form，只不过这里的被嵌套的是一个formarray.
+formarray是多个formgroup数组集合。在formarray formgroup的命名需要用数字表示：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nt">&lt;div</span> <span class="na">formArrayName=</span><span class="s">"feeArray"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;div</span> <span class="na">*ngFor=</span><span class="s">"let arrayItem of feeArray.controls;let i=index"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">formGroupName=</span><span class="s">" { { i } } "</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;dynamic-fee</span> <span class="na">(deleteFeeItem)=</span><span class="s">"removeFeeItem()"</span> <span class="na">[group]=</span><span class="s">"feeForm.controls.feeArray.controls[i]"</span><span class="nt">&gt;&lt;/dynamic-fee&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+
+<p>在DynamicFeeComponent里需要用到每一个formControl的时候，通过<code class="language-plaintext highlighter-rouge">[group]="feeForm.controls.feeArray.controls[i]"</code>把每个formgroup传给DynamicFeeComponent。
+否则的话一直会报类似这样的错:cannot access formcontrol</p>
+
+<p><strong>第四步，在DynamicFeeComponent里，为每一个字段添加require的校验，formarray中只要有一个字段校验不对，整个form.valid就为false</strong></p>
+
+<p>在每添加一个feeItem的时候，给每个字段设置require校验：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//app.component.ts</span>
+ <span class="nx">addFeeItem</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">feeArray</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">fb</span><span class="p">.</span><span class="nx">group</span><span class="p">({</span>
+        <span class="na">userlevel</span><span class="p">:</span> <span class="p">[</span><span class="dl">''</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="nx">required</span><span class="p">],</span>
+        <span class="na">tierMin</span><span class="p">:</span> <span class="p">[</span><span class="dl">''</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="nx">required</span><span class="p">],</span>
+        <span class="na">tierMax</span><span class="p">:</span> <span class="p">[</span><span class="dl">''</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="nx">required</span><span class="p">],</span>
+        <span class="na">amount</span><span class="p">:</span> <span class="p">[</span><span class="dl">''</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="nx">required</span><span class="p">]</span>
+      <span class="p">})</span>
+    <span class="p">)</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<p>校验方法如下：</p>
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//dynamic-fee.component.ts</span>
+    <span class="nx">onValidate</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isSubmitted</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">const</span> <span class="nx">form</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">group</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">field</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">feeItemErrors</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">form</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="nx">field</span><span class="p">).</span><span class="nx">errors</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">const</span> <span class="nx">error</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">form</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="nx">field</span><span class="p">).</span><span class="nx">errors</span><span class="p">);</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">feeItemErrors</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">feeItemErrorsMessage</span><span class="p">[</span><span class="nx">field</span><span class="p">][</span><span class="nx">error</span><span class="p">[</span><span class="mi">0</span><span class="p">]];</span>
+
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">feeItemErrors</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>需要注意的是，在钩子函数ngAfterContentChecked里需要重新调用onValidate方法，保证在点击submit button以后，每次更改页面里的值后能够实时校验。</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">//dynamic-fee.component.ts</span>
+   <span class="nx">ngAfterContentChecked</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isSubmitted</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">onValidate</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+:ET

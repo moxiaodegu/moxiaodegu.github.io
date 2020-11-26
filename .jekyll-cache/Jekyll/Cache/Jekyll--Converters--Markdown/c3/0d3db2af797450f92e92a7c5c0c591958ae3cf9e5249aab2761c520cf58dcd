@@ -1,0 +1,106 @@
+I"�:<p>在项目中，经常会碰到这样的需求：用户在输入框输入数据，需要实时调用后端 API，拿到结果显示在页面上。如果用传统方式一般实现方式是在输入框上绑定一个 keydown 或者 keyup 事件，然后每次输入值以后都调用一次后端 API，拿到返回数据。这样会有一个问题，比如我输入’limei’，<code class="language-plaintext highlighter-rouge">l</code> <code class="language-plaintext highlighter-rouge">li</code> <code class="language-plaintext highlighter-rouge">lim</code> <code class="language-plaintext highlighter-rouge">lime</code> <code class="language-plaintext highlighter-rouge">limei</code>这五次 keydown/keyup 分别会调用一次 API。这五个 API有五个 Response，我最后想要’limei’的结果，由于这五个 API 的 response 顺序不可控，可能最后返回’li’的结果。这种方法不仅效率低而且结果正确性没办法保证。</p>
+
+<p>这篇文章会介绍如何在 RxJS 中结合操作符<code class="language-plaintext highlighter-rouge">debounceTime</code> <code class="language-plaintext highlighter-rouge">map</code>  <code class="language-plaintext highlighter-rouge">filter</code>  <code class="language-plaintext highlighter-rouge">distinctUntilChanged</code> 和<code class="language-plaintext highlighter-rouge">switchMap</code>实现：输入完“limei”之后只调用一次 API，最后拿到这个 API 返回的输入显示在页面上。</p>
+
+<p>我们来实现一个搜索 github 用户的功能，页面上有一个输入框，在输入框中输入 github 用户名，然后把搜索结果显示在页面上：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/rxjs/rxjs-searchinput01.png" alt="rxjs-searchable-input" height="100%" width="100%" /></p>
+
+<p>如果没有匹配的用户，显示如下：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/rxjs/rxjs-searchinput02.png" alt="rxjs-searchable-input" height="100%" width="100%" /></p>
+
+<p>我们先来定义一个 Service 如下：</p>
+
+<p>示例代码用的是 Angular+RxJS，API 是【<a href="https://developer.github.com/v3/search/#search-users">Github Search user API</a>】, 示例代码在这里：【<a href="https://github.com/LiMeii/angular-rxjs">angular-rxjs</a>】</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsSearchableInputService</span> <span class="p">{</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">http</span><span class="p">:</span> <span class="nx">HttpClient</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="nx">searchUser</span><span class="p">(</span><span class="nx">val</span><span class="p">:</span> <span class="kr">any</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">SearchResult</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="dl">"</span><span class="s2">https://api.github.com/search/users?q=</span><span class="dl">"</span> <span class="o">+</span> <span class="nx">val</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                <span class="nx">map</span><span class="p">(</span><span class="nx">response</span> <span class="o">=&gt;</span> <span class="nx">response</span><span class="p">),</span>
+                <span class="nx">catchError</span><span class="p">((</span><span class="nx">error</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">something went wrong, </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">error</span><span class="p">);</span>
+                    <span class="k">return</span> <span class="k">of</span><span class="p">([]);</span>
+                <span class="p">})</span>
+            <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>定义一个 component 如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsSearchableInputComponent</span> <span class="k">implements</span> <span class="nx">OnInit</span><span class="p">,</span> <span class="nx">OnDestroy</span> <span class="p">{</span>
+
+    <span class="nl">users</span><span class="p">:</span> <span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="nx">onSearchUser$</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Subject</span><span class="o">&lt;</span><span class="nx">KeyboardEvent</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="nx">validSearch$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="kr">any</span><span class="o">&gt;</span><span class="p">;</span>
+    <span class="nx">emptySearch$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="kr">any</span><span class="o">&gt;</span><span class="p">;</span>
+
+    <span class="nl">subscription</span><span class="p">:</span> <span class="nx">Subscription</span><span class="p">;</span>
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">rxjsSearchableInputService</span><span class="p">:</span> <span class="nx">RxjsSearchableInputService</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="nx">ngOnInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">validSearch$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">onSearchUser$</span>
+            <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                <span class="nx">debounceTime</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
+                <span class="nx">map</span><span class="p">(</span><span class="nx">event</span> <span class="o">=&gt;</span> <span class="p">(</span><span class="o">&lt;</span><span class="nx">HTMLInputElement</span><span class="o">&gt;</span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">).</span><span class="nx">value</span><span class="p">),</span>
+                <span class="nx">distinctUntilChanged</span><span class="p">(),</span>
+                <span class="nx">filter</span><span class="p">(</span><span class="nx">input</span> <span class="o">=&gt;</span> <span class="nx">input</span> <span class="o">!==</span> <span class="dl">""</span><span class="p">),</span>
+                <span class="nx">switchMap</span><span class="p">(</span><span class="nx">data</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">rxjsSearchableInputService</span><span class="p">.</span><span class="nx">searchUser</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+            <span class="p">)</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">emptySearch$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">onSearchUser$</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+            <span class="nx">debounceTime</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
+            <span class="nx">map</span><span class="p">(</span><span class="nx">event</span> <span class="o">=&gt;</span> <span class="p">(</span><span class="o">&lt;</span><span class="nx">HTMLInputElement</span><span class="o">&gt;</span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">).</span><span class="nx">value</span><span class="p">),</span>
+            <span class="nx">filter</span><span class="p">(</span><span class="nx">input</span> <span class="o">=&gt;</span> <span class="nx">input</span> <span class="o">===</span> <span class="dl">""</span><span class="p">),</span>
+            <span class="nx">switchMap</span><span class="p">(</span><span class="nx">data</span> <span class="o">=&gt;</span> <span class="k">of</span><span class="p">([]))</span>
+        <span class="p">)</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">subscription</span> <span class="o">=</span> <span class="nx">merge</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">validSearch$</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">emptySearch$</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="nx">resp</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nx">resp</span> <span class="o">&amp;&amp;</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">items</span> <span class="o">&amp;&amp;</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">items</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">resp</span> <span class="k">as</span> <span class="nx">SearchResult</span><span class="p">;</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">users</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">items</span><span class="p">;</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="nx">users</span> <span class="o">=</span> <span class="p">[];</span>
+                <span class="p">}</span>
+            <span class="p">})</span>
+    <span class="p">}</span>
+
+    <span class="nx">ngOnDestroy</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">subscription</span><span class="p">.</span><span class="nx">unsubscribe</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>component 对应的 html 文件如下：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"margin-large"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container-flex margin-small"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"margin-right-small"</span><span class="nt">&gt;&lt;strong&gt;</span> Search Github user: <span class="nt">&lt;/strong&gt;&lt;/div&gt;</span>
+        <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">(keyup)=</span><span class="s">"onSearchUser$.next($event)"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">*ngFor=</span><span class="s">"let user of users"</span> <span class="na">style=</span><span class="s">"margin: 20px"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container-flex"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font: 0.9em;width:20%"</span><span class="nt">&gt;&lt;strong&gt;</span>User Name: <span class="nt">&lt;/strong&gt;</span>{{user.login}}<span class="nt">&lt;/div&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font:0.9em;width:10%"</span><span class="nt">&gt;&lt;strong&gt;</span>ID: <span class="nt">&lt;/strong&gt;</span>{{user.id}}<span class="nt">&lt;/div&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font:0.9em;width:30%"</span><span class="nt">&gt;&lt;strong&gt;</span>GitHub URL: <span class="nt">&lt;/strong&gt;</span>{{user.url}}<span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">*ngIf=</span><span class="s">"!users.length"</span> <span class="na">class=</span><span class="s">"margin-small"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;label</span> <span class="na">style=</span><span class="s">"color:red"</span><span class="nt">&gt;</span>no search result!<span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+<p>在 componet 中先定义一个 onSearchUser$ subject，然后在 input上 绑定一个 keyup 事件<code class="language-plaintext highlighter-rouge">(keyup)="onSearchUser$.next($event)"</code>，每次输入框有输入变化的时候，onSearchUser$ 都会发送当前输入框的值。</p>
+
+<p>然后在 component 中定义两个 Observable：validSearch$ 和 emptySearch$，validSearch$ 是每隔1秒拿到 input 框中的非空值，并且是本次拿到的值和上次的值不一样的情况下调用 searchUser API 把搜索结合显示在页面上。emptySearch$ 是每隔1秒拿到 input 框中的空值，并不调用 API，直接返回一个空的用户列表。在 validSearch$ 中用 switchMap 的原因是：本次调用 API 的时候，上一次的 API 如果还没有返回，switchMap 会取消上一次的 API，这样就可以保证每次 API 返回的结果是正确的。</p>
+
+<p>最后再用 merge 把 emptySearch$，validSearch$ 两个 Observable 合并。</p>
+
+<p>用 RxJS 实现这个功能，代码是不是非常简洁！</p>
+:ET

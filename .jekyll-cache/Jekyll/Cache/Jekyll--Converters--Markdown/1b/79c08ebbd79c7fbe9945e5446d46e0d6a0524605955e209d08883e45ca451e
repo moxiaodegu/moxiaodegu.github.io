@@ -1,0 +1,2 @@
+I"<p>在 <a href="/2018/10/webpack-caching">webpack：如何解决浏览器缓存问题</a> 文章里介绍了用<code class="language-plaintext highlighter-rouge">chunkhash</code>解决浏览器缓存问题，在那篇文章里默认把CSS文件一起打包进JS bundle文件中。</p>
+:ET

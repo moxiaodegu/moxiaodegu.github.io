@@ -1,0 +1,100 @@
+I"J9<p>首先来说下这三个的区别：</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">call</code> <code class="language-plaintext highlighter-rouge">apply</code>都是为了解决this的指向，默认第一参数是this的指向，剩下的参数是函数形参，<code class="language-plaintext highlighter-rouge">call</code>接收的形参是一个列表用逗号隔开，<code class="language-plaintext highlighter-rouge">apply</code>接收的是一个参数数组。</li>
+  <li><code class="language-plaintext highlighter-rouge">call</code> <code class="language-plaintext highlighter-rouge">apply</code>改变函数的this指向以后立马执行该函数，而<code class="language-plaintext highlighter-rouge">bind</code>是返回一个绑定上下文的新函数，后续再执行。</li>
+  <li>bind函数返回的新函数不可以再通过apply call改变它的this指向。</li>
+</ul>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">a</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">value</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">getValue</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">age</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">getValue</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="dl">'</span><span class="s1">mei</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">24</span><span class="dl">'</span><span class="p">);</span> <span class="c1">// mei 24 1; 立即执行</span>
+<span class="nx">getValue</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="p">[</span><span class="dl">'</span><span class="s1">li</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">24</span><span class="dl">'</span><span class="p">]);</span><span class="c1">// li 24 1；立即执行</span>
+<span class="nx">getValue</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">a</span><span class="p">)(</span><span class="dl">'</span><span class="s1">mei</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">24</span><span class="dl">'</span><span class="p">);</span> <span class="c1">// mei 24 1；('mei', '24')这部分才是执行函数</span>
+<span class="nx">getValue</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">a</span><span class="p">)([</span><span class="dl">'</span><span class="s1">li</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">24</span><span class="dl">'</span><span class="p">]);</span><span class="c1">// ['li', '24'] undefined 1；(['li', '24'])才是执行函数</span>
+</code></pre></div></div>
+
+<h2 id="模拟实现call">模拟实现call</h2>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">Function</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">myCall</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">context</span> <span class="o">=</span> <span class="nx">context</span> <span class="o">||</span> <span class="nb">window</span>
+  <span class="c1">// 给 context 添加一个属性</span>
+  <span class="c1">// getValue.call(a, 'mei', '24') =&gt; a.fn = getValue</span>
+  <span class="nx">context</span><span class="p">.</span><span class="nx">fn</span> <span class="o">=</span> <span class="k">this</span>
+  <span class="c1">// 将 context 后面的参数取出来</span>
+  <span class="kd">var</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[...</span><span class="nx">arguments</span><span class="p">].</span><span class="nx">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="c1">// getValue.call(a, 'mei', '24') =&gt; a.fn('mei', '24')</span>
+  <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">context</span><span class="p">.</span><span class="nx">fn</span><span class="p">(...</span><span class="nx">args</span><span class="p">)</span>
+  <span class="c1">// 删除 fn</span>
+  <span class="k">delete</span> <span class="nx">context</span><span class="p">.</span><span class="nx">fn</span>
+  <span class="k">return</span> <span class="nx">result</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>测试一下：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">a</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">value</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">getValue</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">age</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">getValue</span><span class="p">.</span><span class="nx">myCall</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="dl">'</span><span class="s1">mei</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">24</span><span class="dl">'</span><span class="p">);</span><span class="c1">//mei 24 1</span>
+</code></pre></div></div>
+<h2 id="模拟实现apply">模拟实现apply</h2>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">Function</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">myApply</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">context</span> <span class="o">=</span> <span class="nx">context</span> <span class="o">||</span> <span class="nb">window</span><span class="p">;</span>
+    <span class="nx">context</span><span class="p">.</span><span class="nx">fn</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">result</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">context</span><span class="p">.</span><span class="nx">fn</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">context</span><span class="p">.</span><span class="nx">fn</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="k">delete</span> <span class="nx">context</span><span class="p">.</span><span class="nx">fn</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>测试一下：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">a</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">value</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">getValue</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">age</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">getValue</span><span class="p">.</span><span class="nx">myApply</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="p">[</span><span class="dl">'</span><span class="s1">mei</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">24</span><span class="dl">'</span><span class="p">]);</span><span class="c1">//mei 24 1</span>
+</code></pre></div></div>
+<h2 id="模拟实现bind">模拟实现bind</h2>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">Function</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">myBind</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="k">this</span> <span class="o">!==</span> <span class="dl">'</span><span class="s1">function</span><span class="dl">'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="dl">'</span><span class="s1">error</span><span class="dl">'</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kd">var</span> <span class="nx">_this</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[...</span><span class="nx">arguments</span><span class="p">].</span><span class="nx">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kd">function</span> <span class="nx">F</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span> <span class="k">instanceof</span> <span class="nx">F</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="nx">_this</span><span class="p">(...</span><span class="nx">args</span><span class="p">,</span> <span class="p">...</span><span class="nx">arguments</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">_this</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">args</span><span class="p">.</span><span class="nx">concat</span><span class="p">(...</span><span class="nx">arguments</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>测试一下：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">a</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">value</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">getValue</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">age</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">getValue</span><span class="p">.</span><span class="nx">myBind</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="dl">'</span><span class="s1">mei</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">24</span><span class="dl">'</span><span class="p">)();</span><span class="c1">//mei 24 1</span>
+</code></pre></div></div>
+:ET

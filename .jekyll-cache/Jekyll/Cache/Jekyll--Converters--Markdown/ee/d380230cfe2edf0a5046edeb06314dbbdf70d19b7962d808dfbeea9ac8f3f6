@@ -1,0 +1,142 @@
+I"=3<p>在介绍 Angular 单向数据流之前我们先来看下 Angular 中 component 之间关系树状结构图：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/angular/angular-components-tree.png" alt="angular component tree" height="50%" width="50%" /></p>
+
+<p>比如在 child A component 从 http response 拿到最新 model 的值，并且需要把变化后的值渲染到页面，这个过程会触发 child A component 的变化检测（change detection）。</p>
+
+<blockquote>
+<p>
+这个变化检测不仅仅会在 child A component 中执行，它会从 root component 开始沿着 component 关系树结构从上到下执行，直到最后一个 child component 完成变化检测达到稳定状态。也就是说在 GrandChild component 中也会触发执行变化检测，如果 GrandChild component 中还有它自己的 child component，会继续触发它的 child component 的变化检测。在这个从上到下的变化检测流中，一旦 child A component 中的变化检测已经完成了，任何在 GrandChild component 或者更低层级的 component 都不允许去改变 child A component 中的属性。
+</p>
+</blockquote>
+
+<p><strong><font color="black">这个过程就是 Angular 的单向数据流。</font></strong></p>
+
+<p>但是在 GrandChild component 里，有些钩子函数通过<code class="language-plaintext highlighter-rouge">@Output</code>去改变 child A component 的数据值，是允许的，而有些又不允许。</p>
+
+<p>现在我们来看看，如果在 GrandChild component 的钩子函数里通过<code class="language-plaintext highlighter-rouge">@Output</code>去改 child A component 的值，会发生什么？</p>
+
+<p><strong>定义一个 ChildAComponent，在这里会显示从 GrandChildComponent 发过来的 message，代码如下：</strong></p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+    <span class="na">template</span><span class="p">:</span><span class="s2">`&lt;h3 style="color: black"&gt;this is child A page&lt;/h3&gt;
+            &lt;h4 style="color: black"&gt;message from grand child: { { msgFromGrandChild } } &lt;/h4&gt;
+            &lt;app-grand-child (sendMsgToParent)="getMsgFromGrandChild($event)"&gt;
+                &lt;span style="color: coral"&gt;here is the content projection&lt;/span&gt;            
+            &lt;/app-grand-child&gt;`</span>
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">ChildAComponent</span> <span class="p">{</span>
+    <span class="nl">msgFromGrandChild</span><span class="p">:</span> <span class="kr">any</span> <span class="o">=</span> <span class="dl">''</span><span class="p">;</span>
+    <span class="nx">getMsgFromGrandChild</span><span class="p">(</span><span class="nx">value</span><span class="p">:</span> <span class="kr">any</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">msgFromGrandChild</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>定义一个 GrandChildComponent，通过 @Output 向 ChildAComponent 发送 message，代码如下：</strong></p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+    <span class="na">selector</span><span class="p">:</span> <span class="dl">"</span><span class="s2">app-grand-child</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">template</span><span class="p">:</span> <span class="s2">`&lt;h5 style="color: crimson"&gt;this is grand child&lt;/h5&gt;
+                &lt;ng-content&gt;&lt;/ng-content&gt;`</span>
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">GrandChildComponent</span> <span class="k">implements</span>  <span class="nx">OnInit</span> <span class="p">{</span>
+    <span class="p">@</span><span class="nd">Output</span><span class="p">()</span> <span class="nx">sendMsgToParent</span><span class="p">:</span> <span class="nx">EventEmitter</span><span class="o">&lt;</span><span class="kr">any</span><span class="o">&gt;</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="o">&lt;</span><span class="kr">any</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="nx">msg</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">hello, change this to parent component</span><span class="dl">"</span>
+    <span class="nx">ngOnInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">sendMsgToParent</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">msg</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>1. GrandChild 组件，在 ngOnInit 函数中改变了 ChildAComponent 的 msgFromGrandChild 属性的值</strong></p>
+
+<p>效果如下：message 能正常显示也没有 error：
+<img src="https://limeii.github.io/assets/images/posts/angular/angular-unidirectional-data-flow3.png" alt="angular-unidirectional-data-flow" height="100%" width="100%" /></p>
+
+<blockquote>
+<p>
+把 ngOnInit 换成 ngDoCheck、ngAfterContentInit、ngAfterContentChecked、ngOnChanges，效果是一样的，在 ChildAComponent 中 message 都能正常显示也不会报错。
+</p>
+</blockquote>
+
+<p><strong>2. GrandChild 组件，在 ngAfterViewInit 中去改 childA 组件 msgFromGrandChild 属性的值</strong></p>
+
+<p>代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">class</span> <span class="nx">GrandChildComponent</span> <span class="k">implements</span> <span class="nx">AfterViewInit</span> <span class="p">{</span>
+    <span class="p">@</span><span class="nd">Output</span><span class="p">()</span> <span class="nx">sendMsgToParent</span><span class="p">:</span> <span class="nx">EventEmitter</span><span class="o">&lt;</span><span class="kr">any</span><span class="o">&gt;</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventEmitter</span><span class="o">&lt;</span><span class="kr">any</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="nx">msg</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">hello, change this to parent component</span><span class="dl">"</span>
+    <span class="nx">ngAfterViewInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">sendMsgToParent</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">msg</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>这个时候会发现在 console 里会有<code class="language-plaintext highlighter-rouge">ExpressionChangedAfterItHasBeenCheckedError</code>，具体如下：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/angular/angular-unidirectional-data-flow5.png" alt="angular-unidirectional-data-flow" height="100%" width="100%" /></p>
+
+<blockquote>
+<p>
+如果把 ngAfterViewInit 换成 ngAfterViewChecked，效果也是一样的，会有同样的错误。
+</p>
+</blockquote>
+
+<p><strong>出现这种错误的原因是：</strong>
+在 Angular 中强制了单向数据流，当有变化的时候，变化检测机制是沿着 component 关系树结构从上到下执行，直到最后一个 child component 变化检测完成，这个完整的变化检测才算结束。在这个过程中，parent component 的变化检测完成以后，任何更低一层级去改上一层级的属性，都不允许。如果是在生产环境里，也就是启用了 enableProdMode() 会直接忽略这样的操作，页面也不会显示变化以后的值，也不会报错。但是在开发模式下，在每一次变换检测（change detection）以后，Angular 会从上到下再多跑一个变化检测，确保每次改动之后所有的状态是 stable 的，这个时候发现有低层级改动上一层级的值，就会出现上面那个错误。</p>
+
+<p><strong>那为什么在 ngAfterViewInit 和 ngAfterViewChecked 会报错，而且其他几个钩子函数里不报错呢？</strong></p>
+
+<p>我们来调试一下他的 core.js 源代码，具体调试方法如下：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/angular/angular-unidirectional-data-flow06.gif" alt="angular-unidirectional-data-flow" height="100%" width="100%" /></p>
+
+<p>把<code class="language-plaintext highlighter-rouge">checkAndUpdateView</code>方法简化一下：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">checkAndUpdateView</span><span class="p">(</span><span class="nx">view</span><span class="p">,</span> <span class="p">...)</span> <span class="p">{</span>
+    <span class="p">...</span>       
+    <span class="c1">// update input bindings on child views (components) &amp; directives,</span>
+    <span class="c1">// call NgOnInit, NgDoCheck, ngOnChanges,ngAfterContentInit, ngAfterContentChecked hooks if needed</span>
+    <span class="nx">Services</span><span class="p">.</span><span class="nx">updateDirectives</span><span class="p">(</span><span class="nx">view</span><span class="p">,</span> <span class="nx">CheckType</span><span class="p">.</span><span class="nx">CheckAndUpdate</span><span class="p">);</span>
+    
+    <span class="c1">// DOM updates, perform rendering for the current view (component)</span>
+    <span class="nx">Services</span><span class="p">.</span><span class="nx">updateRenderer</span><span class="p">(</span><span class="nx">view</span><span class="p">,</span> <span class="nx">CheckType</span><span class="p">.</span><span class="nx">CheckAndUpdate</span><span class="p">);</span>
+    
+    <span class="c1">// run change detection on child views (components)</span>
+    <span class="nx">execComponentViewsAction</span><span class="p">(</span><span class="nx">view</span><span class="p">,</span> <span class="nx">ViewAction</span><span class="p">.</span><span class="nx">CheckAndUpdate</span><span class="p">);</span>
+    
+    <span class="c1">// call AfterViewChecked and AfterViewInit hooks</span>
+    <span class="nx">callLifecycleHooksChildrenFirst</span><span class="p">(</span><span class="err">…</span><span class="p">,</span> <span class="nx">NodeFlags</span><span class="p">.</span><span class="nx">AfterViewChecked</span><span class="err">…</span><span class="p">);</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>从上面的代码可以看出来，在 GrandChild component 中，<code class="language-plaintext highlighter-rouge">AfterViewChecked</code>和<code class="language-plaintext highlighter-rouge">AfterViewInit</code>是在它自己的变化检测（change detetion）之后再执行的，也就是它状态 stable 之后再执行的，这时候在去触发它上一层级属性的改动，被认为是违反 Angular 的单向数据流。</p>
+
+<p>从上面的分析可以看到：Angular 在变化检测（change detection）过程中也会去触发生命周期钩子函数。比较有意思的是，有些钩子函数是在 DOM Rending/change detection 之前触发，有些是在之后触发。</p>
+
+<p>最后来总结一下，在 Angular 整个页面渲染的过程：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/angular/angular-unidirectional-data-flow7.png" alt="angular-unidirectional-data-flow" height="100%" width="100%" /></p>
+
+<ol>
+  <li>
+    <p>更新 child component 的 input bindings，然后会触发 child component 中 OnInit、DoCheck、OnChanges 函数，如果页面有 ng-content，相应也会触发 ngAfterContentInit 和 ngAfterContentChecked。</p>
+  </li>
+  <li>
+    <p>Angular 会继续渲染当前 component 也就是 parent component 页面。</p>
+  </li>
+  <li>
+    <p>触发 child component 中的变化检测（change detection）。</p>
+  </li>
+  <li>
+    <p>触发 child component 中的 AfterViewInit 和 theAfterViewChecked。</p>
+  </li>
+</ol>
+
+<p>在【<a href="https://limeii.github.io/2019/06/angular-changedetection/">Angular Change Detection:变化检测机制</a>】这篇文章里介绍了变化检测机制。</p>
+
+<p>本文中用到的示例代码在这里：<a href="https://github.com/LiMeii/angular-change-detection">angular-change-detection</a></p>
+:ET

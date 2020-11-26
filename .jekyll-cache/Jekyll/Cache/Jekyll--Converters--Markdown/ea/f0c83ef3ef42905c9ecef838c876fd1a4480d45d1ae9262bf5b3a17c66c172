@@ -1,0 +1,160 @@
+I"�k<blockquote>
+<p>
+Angular 中的变化检测机制是当 component 状态有变化的时候，Angular 都能检测到这些变化，并且能够将这些变化反应到页面上。
+</p>
+</blockquote>
+
+<p>比如有这样一个 component，代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">template</span><span class="p">:</span><span class="s2">`&lt;h1&gt;I am &lt;span [textContent]="data.name"&gt;&lt;/span&gt;&lt;h1&gt;`</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">CDParentComponent</span> <span class="p">{</span>
+  <span class="nl">data</span> <span class="p">:</span> <span class="kr">any</span> <span class="o">=</span> <span class="p">{</span> <span class="na">name</span><span class="p">:</span><span class="dl">'</span><span class="s1">meii</span><span class="dl">'</span><span class="p">,</span> <span class="na">address</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ShangHai</span><span class="dl">'</span><span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>当把 cdParentComponent 中<code class="language-plaintext highlighter-rouge">data.name</code>的值改成 limeii，页面会直接把 meii 更新成 limeii，看似很简单的一个改动，其实在 Angular 内部涉及到很多复杂的操作，包括<code class="language-plaintext highlighter-rouge">变化检测</code> <code class="language-plaintext highlighter-rouge">脏数据检查</code> <code class="language-plaintext highlighter-rouge">数据绑定</code> <code class="language-plaintext highlighter-rouge">单向数据流</code> <code class="language-plaintext highlighter-rouge">更新DOM</code> <code class="language-plaintext highlighter-rouge">NgZone</code>等等。</p>
+
+<p>单向数据流在这篇【<a href="https://limeii.github.io/2019/06/angular-unidirectional-data-flow/">Angular：单向数据流</a>】文章有详细介绍，也提到 Angular 应用其实就是组件树，变化检测都是沿着组件树从 root component 开始至上而下执行的。我们都知道在Angular 里，每个 component 都有一个 html 模板，在 Angular 内部，编译器在 component 和模板之间会生成一个 component view。数据绑定、脏数据检查和更新 DOM 都是由这个 component view 实现的。变化检测机制也可以说就是沿着 component view 的树状结构从上到下执行的。</p>
+
+<h2 id="component-view-到底是什么">Component View 到底是什么？</h2>
+
+<p>把<code class="language-plaintext highlighter-rouge">data.name</code>值改成 limeii，会触发变化检测，同时 Angular 会做数据脏检查，也就是对比当前值（limeii）和之前的值（oldvalue：meii）是否一样，如果发现两者不一致，会把当前的值（limeii）更新到页面上。同时也会把当前的值保持为 oldvalue。</p>
+
+<p>在文章【<a href="https://limeii.github.io/2019/08/angular-compiler/">Angular：深入理解Angular编译机制</a>】中介绍了 AoT 和 ngc，提到过 ngc 会生成<code class="language-plaintext highlighter-rouge">*.ngfactory.js</code>，其实 ngfactory 就是 Component View。在<code class="language-plaintext highlighter-rouge">*.ngfactory.js</code>过程中，ngc 会把所有可能发生变化的<code class="language-plaintext highlighter-rouge">DOM Nodes/Elements</code>都找出来，然后给这些<code class="language-plaintext highlighter-rouge">DOM Nodes/Elements</code>生成<code class="language-plaintext highlighter-rouge">Bindings</code>，这些<code class="language-plaintext highlighter-rouge">Bindings</code>里会记录<code class="language-plaintext highlighter-rouge">Element Name/Expression/OldValue</code>，一旦有异步事件发生（Click事件或者是HttpRequest）就会被<code class="language-plaintext highlighter-rouge">ngZone</code>捕获到，然后触发<code class="language-plaintext highlighter-rouge">Change Detection</code>，也就是会从<code class="language-plaintext highlighter-rouge">Root Component</code>开始，从上到下检查所有组件的<code class="language-plaintext highlighter-rouge">Bindings</code>也就是前面提到的<code class="language-plaintext highlighter-rouge">Component View</code>，对比<code class="language-plaintext highlighter-rouge">NewVaule</code>和<code class="language-plaintext highlighter-rouge">OldValue</code>，如果不一致就会把新值更新到页面，同时把新值更新为旧值（这也就是我们经常提到的脏检查机制<code class="language-plaintext highlighter-rouge">Dirty Checking</code>）。我们来看下 CDParentComponent 通过 ngc 编译以后的 cd-parent.component.ngfactory.js 文件里有什么：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * @fileoverview This file was generated by the Angular template compiler. Do not edit.
+ *
+ * @suppress {suspiciousCode,uselessCode,missingProperties,missingOverride,checkTypes}
+ * tslint:disable
+ */</span>
+<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">i0</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">i1</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../cd-child/cd-child.component.ngfactory</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">i2</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../cd-child/cd-child.component</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">i3</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./cd-parent.component</span><span class="dl">"</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">styles_CDParentComponent</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="kd">var</span> <span class="nx">RenderType_CDParentComponent</span> <span class="o">=</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵcrt</span><span class="p">({</span> <span class="na">encapsulation</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="na">styles</span><span class="p">:</span> <span class="nx">styles_CDParentComponent</span><span class="p">,</span> <span class="na">data</span><span class="p">:</span> <span class="p">{}</span> <span class="p">});</span>
+<span class="k">export</span> <span class="p">{</span> <span class="nx">RenderType_CDParentComponent</span> <span class="k">as</span> <span class="nx">RenderType_CDParentComponent</span> <span class="p">};</span>
+
+<span class="k">export</span> <span class="kd">function</span> <span class="nx">View_CDParentComponent_0</span><span class="p">(</span><span class="nx">_l</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵvid</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">[(</span><span class="nx">_l</span><span class="p">()(),</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵeld</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="dl">"</span><span class="s2">h1</span><span class="dl">"</span><span class="p">,</span> <span class="p">[],</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">)),</span> <span class="p">(</span><span class="nx">_l</span><span class="p">()(),</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵted</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="p">[</span><span class="dl">"</span><span class="s2">I am </span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2"> and I live in </span><span class="dl">"</span><span class="p">,</span> <span class="dl">""</span><span class="p">])),</span>
+
+        <span class="p">(</span><span class="nx">_l</span><span class="p">()(),</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵeld</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="dl">"</span><span class="s2">cd-child</span><span class="dl">"</span><span class="p">,</span> <span class="p">[],</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">i1</span><span class="p">.</span><span class="nx">View_CDChildComponent_0</span><span class="p">,</span> <span class="nx">i1</span><span class="p">.</span><span class="nx">RenderType_CDChildComponent</span><span class="p">)),</span>
+        <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵdid</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">638976</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">i2</span><span class="p">.</span><span class="nx">CDChildComponent</span><span class="p">,</span> <span class="p">[</span><span class="nx">i0</span><span class="p">.</span><span class="nx">ChangeDetectorRef</span><span class="p">,</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ApplicationRef</span><span class="p">],</span> <span class="p">{</span> <span class="na">data</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="dl">"</span><span class="s2">data</span><span class="dl">"</span><span class="p">]</span> <span class="p">},</span> <span class="kc">null</span><span class="p">),</span>
+
+        <span class="p">(</span><span class="nx">_l</span><span class="p">()(),</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵeld</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="dl">"</span><span class="s2">button</span><span class="dl">"</span><span class="p">,</span> <span class="p">[],</span> <span class="kc">null</span><span class="p">,</span> <span class="p">[[</span><span class="kc">null</span><span class="p">,</span> <span class="dl">"</span><span class="s2">click</span><span class="dl">"</span><span class="p">]],</span>
+            <span class="kd">function</span> <span class="p">(</span><span class="nx">_v</span><span class="p">,</span> <span class="nx">en</span><span class="p">,</span> <span class="nx">$event</span><span class="p">)</span> <span class="p">{</span>
+                <span class="kd">var</span> <span class="nx">ad</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span> <span class="kd">var</span> <span class="nx">_co</span> <span class="o">=</span> <span class="nx">_v</span><span class="p">.</span><span class="nx">component</span><span class="p">;</span> <span class="k">if</span> <span class="p">((</span><span class="dl">"</span><span class="s2">click</span><span class="dl">"</span> <span class="o">===</span> <span class="nx">en</span><span class="p">))</span> <span class="p">{</span>
+                    <span class="kd">var</span> <span class="nx">pd_0</span> <span class="o">=</span> <span class="p">(</span><span class="nx">_co</span><span class="p">.</span><span class="nx">changeInfo</span><span class="p">()</span> <span class="o">!==</span> <span class="kc">false</span><span class="p">);</span>
+                    <span class="nx">ad</span> <span class="o">=</span> <span class="p">(</span><span class="nx">pd_0</span> <span class="o">&amp;&amp;</span> <span class="nx">ad</span><span class="p">);</span>
+                <span class="p">}</span> <span class="k">return</span> <span class="nx">ad</span><span class="p">;</span>
+            <span class="p">},</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">))</span>
+
+            <span class="p">,</span> <span class="p">(</span><span class="nx">_l</span><span class="p">()(),</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵted</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="p">[</span><span class="dl">"</span><span class="s2">Change Info</span><span class="dl">"</span><span class="p">]))</span>
+        <span class="p">],</span>
+        
+        <span class="kd">function</span> <span class="p">(</span><span class="nx">_ck</span><span class="p">,</span> <span class="nx">_v</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">_co</span> <span class="o">=</span> <span class="nx">_v</span><span class="p">.</span><span class="nx">component</span><span class="p">;</span> <span class="kd">var</span> <span class="nx">currVal_2</span> <span class="o">=</span> <span class="nx">_co</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span> <span class="nx">_ck</span><span class="p">(</span><span class="nx">_v</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">currVal_2</span><span class="p">);</span>
+        <span class="p">},</span>
+        <span class="kd">function</span> <span class="p">(</span><span class="nx">_ck</span><span class="p">,</span> <span class="nx">_v</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">_co</span> <span class="o">=</span> <span class="nx">_v</span><span class="p">.</span><span class="nx">component</span><span class="p">;</span> <span class="kd">var</span> <span class="nx">currVal_0</span> <span class="o">=</span> <span class="nx">_co</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+            <span class="kd">var</span> <span class="nx">currVal_1</span> <span class="o">=</span> <span class="nx">_co</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">address</span><span class="p">;</span> <span class="nx">_ck</span><span class="p">(</span><span class="nx">_v</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">currVal_0</span><span class="p">,</span> <span class="nx">currVal_1</span><span class="p">);</span>
+        <span class="p">});</span>
+<span class="p">}</span>
+
+
+<span class="k">export</span> <span class="kd">function</span> <span class="nx">View_CDParentComponent_Host_0</span><span class="p">(</span><span class="nx">_l</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵvid</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[(</span><span class="nx">_l</span><span class="p">()(),</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵeld</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="dl">"</span><span class="s2">ng-component</span><span class="dl">"</span><span class="p">,</span> <span class="p">[],</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">View_CDParentComponent_0</span><span class="p">,</span> <span class="nx">RenderType_CDParentComponent</span><span class="p">)),</span>
+    <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵdid</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">49152</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">i3</span><span class="p">.</span><span class="nx">CDParentComponent</span><span class="p">,</span> <span class="p">[],</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">)],</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="kd">var</span> <span class="nx">CDParentComponentNgFactory</span> <span class="o">=</span> <span class="nx">i0</span><span class="p">.</span><span class="nx">ɵccf</span><span class="p">(</span><span class="dl">"</span><span class="s2">ng-component</span><span class="dl">"</span><span class="p">,</span> <span class="nx">i3</span><span class="p">.</span><span class="nx">CDParentComponent</span><span class="p">,</span> <span class="nx">View_CDParentComponent_Host_0</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">[]);</span>
+<span class="k">export</span> <span class="p">{</span> <span class="nx">CDParentComponentNgFactory</span> <span class="k">as</span> <span class="nx">CDParentComponentNgFactory</span> <span class="p">};</span>
+<span class="c1">//# sourceMappingURL=cd-parent.component.ngfactory.js.map</span>
+</code></pre></div></div>
+<p>各段代码的作用如下：
+<img src="/assets/images/posts/angular/angular-change-detection06.png" alt="angular-change-detection" height="100%" width="100%" /></p>
+
+<ul>
+  <li>
+    <p>View_CDParentComponent_0(<strong>internal component</strong>)：是 CDParentComponent，里面有每个 DOM 节点引用，并且给每个节点做数据绑定；还有两个 change detection 方法，分别对应 <code class="language-plaintext highlighter-rouge">[data]="data"</code> <code class="language-plaintext highlighter-rouge">{ { data.name } }</code> 和  <code class="language-plaintext highlighter-rouge">{ { data.address } }</code>。</p>
+  </li>
+  <li>
+    <p>View_CDParentComponent_Host_0(<strong>internal host component</strong>)：负责渲染出宿主元素 &lt; CDParentComponent &gt; &lt; / CDParentComponent &gt; ，并且使用 “internal component” 管理组件的内部视图，也是通过这个构建整个组件树。</p>
+  </li>
+</ul>
+
+<p>当编译器分析组件模板的时候，知道每次变化检测有可能需要更新页面上 DOM 元素属性的值，对于这些属性，编译器都会给它创建绑定，绑定里至少有这个属性名称和取值的表达式。</p>
+
+<p>有了 component view、绑定、脏数据检查，组件状态变化就可以触发变化检测从而更新页面 DOM 属性的值。</p>
+
+<h2 id="那什么会触发组件状态的变化">那什么会触发组件状态的变化？</h2>
+
+<p>最常见的一种方式，在页面按钮的<code class="language-plaintext highlighter-rouge">click</code>事件更新<code class="language-plaintext highlighter-rouge">data.name</code>的值，代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">template</span><span class="p">:</span><span class="s2">`&lt;h1&gt;I am &lt;span [textContent]="data.name"&gt;&lt;/span&gt;&lt;h1&gt;
+            &lt;button (click)="changeName()"&gt;Change Name&lt;/button&gt;`</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">CDParentComponent</span> <span class="p">{</span>
+  <span class="nl">data</span> <span class="p">:</span> <span class="kr">any</span> <span class="o">=</span> <span class="p">{</span> <span class="na">name</span><span class="p">:</span><span class="dl">'</span><span class="s1">meii</span><span class="dl">'</span><span class="p">,</span> <span class="na">address</span><span class="p">:</span> <span class="dl">'</span><span class="s1">ShangHai</span><span class="dl">'</span><span class="p">};</span>
+  <span class="nx">changeName</span><span class="p">(){</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">limeii</span><span class="dl">"</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>还有一种常见的方式是，通过 http request 拿到 data 的值，如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nx">ngOnInit</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="dl">'</span><span class="s1">/contacts</span><span class="dl">'</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">res</span> <span class="o">=&gt;</span> <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+      <span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="nx">contacts</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">contacts</span><span class="p">.</span><span class="nx">name</span><span class="p">;);</span>
+  <span class="p">}</span>
+
+</code></pre></div></div>
+
+<p><strong><font color="#BF1827">angular通常有如下三种方式会导致组件数据变化：</font></strong></p>
+
+<ol>
+  <li>事件：页面 click、submit、mouse down……</li>
+  <li>XHR：从后端服务器拿到数据</li>
+  <li>Timers：setTimeout()、setInterval()</li>
+</ol>
+
+<h2 id="angular-又怎么通知各个组件做变化检测">Angular 又怎么通知各个组件做变化检测？</h2>
+
+<p>前面那三种方式会导致 Angular 状态变化，那又是谁知道状态已经发生改变，需要通知 Angular 触发变化检测从而更新页面 DOM 呢？<code class="language-plaintext highlighter-rouge">NgZone（zone.js）</code>充当了这个角色。</p>
+
+<p>NgZone 可以简单的理解为是一个异步事件拦截器，它能够 hook 到异步任务的执行上下文，然后就可以来处理一些操作，比如每个异步任务 callback 以后就会去通知 Angular 做变化检测。</p>
+
+<p>Angular 源码中有一个<code class="language-plaintext highlighter-rouge">ApplicationRef</code>，可以监听 NgZones <code class="language-plaintext highlighter-rouge">onTurnDone</code>事件，每当<code class="language-plaintext highlighter-rouge">onTurnDone</code>被触发后，它会立马执行<code class="language-plaintext highlighter-rouge">tick()</code>方法，<code class="language-plaintext highlighter-rouge">tick()</code>会从上到下沿着组件树触发变化检测。<code class="language-plaintext highlighter-rouge">ApplicationRef</code>简洁版代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// very simplified version of actual source</span>
+<span class="kd">class</span> <span class="nx">ApplicationRef</span> <span class="p">{</span>
+  <span class="nl">changeDetectorRefs</span><span class="p">:</span><span class="nx">ChangeDetectorRef</span><span class="p">[]</span> <span class="o">=</span> <span class="p">[];</span>
+
+  <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">zone</span><span class="p">:</span> <span class="nx">NgZone</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">zone</span><span class="p">.</span><span class="nx">onTurnDone</span>
+      <span class="p">.</span><span class="nx">subscribe</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">zone</span><span class="p">.</span><span class="nx">run</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">tick</span><span class="p">());</span>
+  <span class="p">}</span>
+
+  <span class="nx">tick</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">changeDetectorRefs</span>
+      <span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">ref</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">ref</span><span class="p">.</span><span class="nx">detectChanges</span><span class="p">());</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>每个 component 都有自己的变化检测器，负责检查它们各自的绑定，结构如下：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/angular/angular-change-detection05.png" alt="angular-change-detection" height="100%" width="100%" /></p>
+
+<p>有了 NgZone 上述三种异步事件都会导致整个 Angular 应用发生变化检测，虽然 Angular 变化检测本身性能已经很好了，在毫秒内可以做成百上千次变化检测。但是随着项目越来越大，其实很多不必要的变化检测还是会在一定程度上影响性能。</p>
+
+<p>在这篇文章【<a href="https://limeii.github.io/2019/06/angular-changeDetectionStrategy-OnPush/">Angular Change Detection:变化检测策略</a>】介绍了如何通过 OnPush 来跳过一些不必要的变化检测，从而优化整个应用的性能。</p>
+:ET

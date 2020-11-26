@@ -1,0 +1,192 @@
+I"�F<p>在文章【<a href="https://limeii.github.io/2019/05/js-eventloop/">JS：详解Event Loop运行机制，以及microtasks和macrotask的执行顺序</a>】这篇文章中简单介绍了Call Stack（调用栈），在JS中所有代码都是在调用栈中执行的，遵循后进先出的原则。</p>
+
+<p>在了解Event Loop和调用栈的运行机制之后，仔细想了一下又觉得很疑惑:</p>
+<ul>
+  <li>只有function可以被压入调用栈执行吗？</li>
+  <li>JS引擎在执行代码时，是从哪里找到要引用的变量值，函数调用又是怎么找到对应的函数的呢？</li>
+  <li>图中每个蓝色的方块代表一个function？在调用栈里是什么？里面又到底有什么？</li>
+  <li>每个蓝色方块之间可以通信交流吗？如果可以，又是怎么做到的呢？</li>
+  <li>方法里每行代码到底是怎么执行的呢？</li>
+</ul>
+
+<p>然后google查了下，发现执行栈中的每个蓝色方块有个专业名称叫<code class="language-plaintext highlighter-rouge">执行上下文(Execution Context)</code>，紧接着就是一大串的名词：<code class="language-plaintext highlighter-rouge">Lexical Environment</code> <code class="language-plaintext highlighter-rouge">Execution Context</code> <code class="language-plaintext highlighter-rouge">变量对象</code> <code class="language-plaintext highlighter-rouge">作用域链</code> <code class="language-plaintext highlighter-rouge">原型链</code> <code class="language-plaintext highlighter-rouge">this</code> <code class="language-plaintext highlighter-rouge">闭包</code>等等。刚开始有点懵，在彻底把这些弄清楚以后，发现简直打开了新世界大门，所有的知识点就像拼图一样，一小块一小块的，突然之间就串起来了。</p>
+
+<p>这篇文章先来介绍<code class="language-plaintext highlighter-rouge">Lexical Environment</code>到底是什么。</p>
+
+<h2 id="lexical-environment">Lexical Environment</h2>
+
+<p>在介绍<code class="language-plaintext highlighter-rouge">Lexical Environment</code>之前，我们先看下在V8里JS的编译执行过程，大致上可以分为三个阶段：</p>
+<ul>
+  <li>
+    <p>第一步：V8引擎刚拿到<code class="language-plaintext highlighter-rouge">执行上下文</code>的时候，会把代码从上到下一行一行的先做分词/词法分析(Tokenizing/Lexing)。分词是指：比如<code class="language-plaintext highlighter-rouge">var a = 2；</code>这段代码，会被分词为：<code class="language-plaintext highlighter-rouge">var</code> <code class="language-plaintext highlighter-rouge">a</code> <code class="language-plaintext highlighter-rouge">2</code>和<code class="language-plaintext highlighter-rouge">;</code>这样的原子符号(atomic token)；词法分析是指：登记变量声明、函数声明、函数声明的形参。</p>
+  </li>
+  <li>
+    <p>第二步：在分词结束以后，会做代码解析，引擎将 token 解析翻译成一个AST(抽象语法树)， 在这一步的时候，如果发现语法错误，就会直接报错不会再往下执行。</p>
+  </li>
+</ul>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">greeting</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">Hello</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">greeting</span><span class="p">);</span>
+<span class="nx">greeting</span> <span class="o">=</span> <span class="p">.</span><span class="dl">"</span><span class="s2">Hi</span><span class="dl">"</span><span class="p">;</span>
+<span class="c1">// SyntaxError: unexpected token .</span>
+<span class="c1">// 没有打印出 hello，而是先报错，说明JS引擎在真正执行代码之前，会做代码解析。</span>
+</code></pre></div></div>
+
+<ul>
+  <li>第三步：引擎生成CPU可以执行的机器码。</li>
+</ul>
+
+<p>在第一步里有个词法分析，它用来登记变量声明、函数声明、函数声明的形参，后续代码执行的时候就知道去哪里拿变量的值和函数了，这个登记的地方就是<code class="language-plaintext highlighter-rouge">Lexical Environment（词法环境）</code>。</p>
+
+<p>词法环境有两个组成部分：</p>
+<ul>
+  <li><strong>1：环境记录（Environment Record）</strong>，这个就是真正登记变量的地方。
+    <ul>
+      <li><strong>1.1：声明式环境记录（Declarative Environment Record）</strong>：用来记录直接有标识符定义的元素，比如变量、常量、let、class、module、import以及函数声明。</li>
+      <li><strong>1.2：对象式环境记录（Object Environment Record）</strong>：主要用于with和global的词法环境。</li>
+    </ul>
+  </li>
+  <li><strong>2：对外部词法环境的引用（outer）</strong>，它是作用域链能够连起来的关键。</li>
+</ul>
+
+<p>其中 <strong>声明式环境记录（Declarative Environment Record）</strong>，又分为两种类型：</p>
+<ul>
+  <li><strong>函数环境记录（Function Environment Record）</strong>：用于函数作用域。</li>
+  <li><strong>模块环境记录（Module Environment Record）</strong>：模块环境记录用于体现一个模块的外部作用域，即模块export所在环境。</li>
+</ul>
+
+<p>词法环境与我们自己写的代码结构相对应，也就是我们自己代码写成什么样子，词法环境就是什么样子。词法环境是在代码定义的时候决定的，跟代码在哪里调用没有关系。所以说JavaScript采用的是词法作用域（静态作用域）。</p>
+
+<p>我们来看个例子：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="kd">let</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">y</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
+
+    <span class="kd">function</span> <span class="nx">bar</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">b</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span> <span class="o">*</span> <span class="nx">b</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">bar</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">baz</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="nx">foo</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="nx">baz</span><span class="p">();</span>
+
+</code></pre></div></div>
+<p>它的词法环境关系图如下：
+<img src="/assets/images/posts/js/js-lexical-environment03.png" alt="js-lexical-environment" height="100%" width="100%" /></p>
+
+<p>我们可以用伪代码来模拟上面代码的词法环境：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 全局词法环境</span>
+<span class="nx">GlobalEnvironment</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">outer</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span> <span class="c1">//全局环境的外部环境引用为null</span>
+    <span class="na">GlobalEnvironmentRecord</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1">//全局this绑定指向全局对象</span>
+        <span class="p">[[</span><span class="nx">GlobalThisValue</span><span class="p">]]:</span> <span class="nx">ObjectEnvironmentRecord</span><span class="p">[[</span><span class="nx">BindingObject</span><span class="p">]],</span>
+        <span class="c1">//声明式环境记录，除了全局函数和var，其他声明都绑定在这里</span>
+        <span class="na">DeclarativeEnvironmentRecord</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="na">y</span><span class="p">:</span> <span class="mi">5</span>
+        <span class="p">},</span>
+        <span class="c1">//对象式环境记录，绑定对象为全局对象</span>
+        <span class="na">ObjectEnvironmentRecord</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">a</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="na">foo</span><span class="p">:</span><span class="o">&lt;&lt;</span> <span class="kd">function</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+            <span class="na">baz</span><span class="p">:</span><span class="o">&lt;&lt;</span> <span class="kd">function</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+            <span class="na">isNaNl</span><span class="p">:</span><span class="o">&lt;&lt;</span> <span class="kd">function</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+            <span class="na">isFinite</span><span class="p">:</span> <span class="o">&lt;&lt;</span> <span class="kd">function</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+            <span class="na">parseInt</span><span class="p">:</span> <span class="o">&lt;&lt;</span> <span class="kd">function</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+            <span class="na">parseFloat</span><span class="p">:</span> <span class="o">&lt;&lt;</span> <span class="kd">function</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+            <span class="na">Array</span><span class="p">:</span> <span class="o">&lt;&lt;</span> <span class="nx">construct</span> <span class="kd">function</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+            <span class="na">Object</span><span class="p">:</span> <span class="o">&lt;&lt;</span> <span class="nx">construct</span> <span class="kd">function</span><span class="o">&gt;&gt;</span>
+            <span class="p">...</span>
+            <span class="p">...</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//foo函数词法环境</span>
+<span class="nx">fooFunctionEnviroment</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">outer</span><span class="p">:</span> <span class="nx">GlobalEnvironment</span><span class="p">,</span><span class="c1">//外部词法环境引用指向全局环境</span>
+    <span class="na">FunctionEnvironmentRecord</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">[[</span><span class="nx">ThisValue</span><span class="p">]]:</span> <span class="nx">GlobalEnvironment</span><span class="p">,</span><span class="c1">//this绑定指向全局环境</span>
+        <span class="na">bar</span><span class="p">:</span><span class="o">&lt;&lt;</span> <span class="kd">function</span><span class="o">&gt;&gt;</span> 
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//bar函数词法环境</span>
+<span class="nx">barFunctionEnviroment</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">outer</span><span class="p">:</span> <span class="nx">fooFunctionEnviroment</span><span class="p">,</span><span class="c1">//外部词法环境引用指向foo函数词法环境</span>
+    <span class="na">FunctionEnvironmentRecord</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">[[</span><span class="nx">ThisValue</span><span class="p">]]:</span> <span class="nx">GlobalEnvironment</span><span class="p">,</span><span class="c1">//this绑定指向全局环境</span>
+        <span class="na">b</span><span class="p">:</span> <span class="mi">3</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">//baz函数词法环境</span>
+<span class="nx">bazFunctionEnviroment</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">outer</span><span class="p">:</span> <span class="nx">GlobalEnvironment</span><span class="p">,</span><span class="c1">//外部词法环境引用指向全局环境</span>
+    <span class="na">FunctionEnvironmentRecord</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">[[</span><span class="nx">ThisValue</span><span class="p">]]:</span> <span class="nx">GlobalEnvironment</span><span class="p">,</span><span class="c1">//this绑定指向全局环境</span>
+        <span class="na">a</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<p>我们可以看到词法环境和我们代码的定义一一对应，每个词法环境都有一个<code class="language-plaintext highlighter-rouge">outer</code>指向上一层的词法环境，当运行上面代码，函数bar的词法环境里没有变量a，所以就会到它的上一层词法环境（foo函数词法环境）里去找，foo函数词法环境里也没有变量a，就接着去foo函数词法环境的上一层（全局词法环境）去找，在全局词法环境里<code class="language-plaintext highlighter-rouge">var a=2</code>，沿着<code class="language-plaintext highlighter-rouge">outer</code>一层一层词法环境找变量的值就是<strong>作用域链</strong>。在沿着作用域链向上找变量的时候，找到第一个就停止往上找，如果到全局词法环境里还是没有找到，因为全局词法环境里的<code class="language-plaintext highlighter-rouge">outer</code>是null，没办法再往上找，就会报ReferenceError。</p>
+
+<p>这段代码的输出为：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2
+6
+</code></pre></div></div>
+
+<h2 id="变量提升vs函数提升">变量提升vs函数提升</h2>
+
+<p>在前面我们提到过，V8引擎执行代码的大致可以分为三步，先做分词和词法分析，然后解析生成AST，最后生成机器码执行代码。在词法分析的时候会生成<code class="language-plaintext highlighter-rouge">词法环境</code>登记变量，对于变量声明和函数声明，词法环境的处理是不一样的。</p>
+
+<p>在词法分析的时候：</p>
+<ul>
+  <li>对于变量声明<code class="language-plaintext highlighter-rouge">var a=2;</code> <code class="language-plaintext highlighter-rouge">let x=1;</code>，给变量分配内存并初始化为undefined，赋值语句是在第三步生成机器码真正执行代码的时候才执行。</li>
+  <li>对于函数声明<code class="language-plaintext highlighter-rouge">function foo(){...}</code>，会在内存里创建函数对象，并且直接初始化为该函数对象。</li>
+</ul>
+
+<p>这就是JS的<strong>变量提升和函数提升</strong>，我们来看个例子;</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">c</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">functionDec</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
+    <span class="nx">c</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">functionDec</span><span class="p">();</span>
+</code></pre></div></div>
+<p>最后运行结果是：undefined</p>
+
+<p>从词法分析到代码执行，变量提升和变量赋值变化如下：</p>
+
+<p><img src="/assets/images/posts/js/js-lexical-environment04.png" alt="js-lexical-environment" height="100%" width="100%" /></p>
+
+<p>如果整个变量就没有定义，如下：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">functionDec</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
+    <span class="nx">c</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">functionDec</span><span class="p">();</span>
+</code></pre></div></div>
+<p>运行代码，会有ReferenceError，运行结果如下：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Uncaught ReferenceError: c is not defined
+    at functionDec (&lt;anonymous&gt;:4:17)
+    at &lt;anonymous&gt;:8:1
+</code></pre></div></div>
+
+<p>在这篇文章里，介绍了<code class="language-plaintext highlighter-rouge">Lexical Environment</code>，它是在V8引擎词法分析阶段用来登记变量的，这样在引擎真正执行代码的时候，就知道去哪里拿变量的值，那代码在执行的过程中，具体又做了什么呢？在下篇文章【<a href="https://limeii.github.io/2019/05/js-execution-context/">JS：深入理解JavaScript-执行上下文</a>】会详细介绍。</p>
+:ET

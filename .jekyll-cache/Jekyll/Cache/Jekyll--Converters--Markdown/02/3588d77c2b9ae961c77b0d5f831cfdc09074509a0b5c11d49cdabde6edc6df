@@ -1,0 +1,203 @@
+I"�V<p>在这篇文章中会介绍以下内容：</p>
+
+<ul>
+  <li>
+    <p>Angular 中通过 HttpClient 执行 Http Request 返回的 Observables 是 Cold Observable。</p>
+  </li>
+  <li>
+    <p>HttpClient Observable 每次被订阅都需要调用 http request，对于公用的 API 返回同样的值，在不同页面重复调用会浪费 http 资源降低性能。</p>
+  </li>
+  <li>
+    <p>如何通过 ReplaySubject 实现缓存效果，提高性能。</p>
+  </li>
+</ul>
+
+<h2 id="httpclient-返回的-observables-是-cold-observable">HttpClient 返回的 Observables 是 Cold Observable</h2>
+
+<p>在 Angular2.0 以上的版本，都是通过 HttpClient 跟后端 API 交互；所有的 Http 请求方法，比如 get，post，put，delete 都是返回一个 Observable。在文章【<a href="https://limeii.github.io/2019/07/rxjs-coldhot-observable/">RxJS：Cold vs Hot Observables</a>】里详细介绍了 Cold Observables 与 Hot Observables 的区别。</p>
+
+<p>那么在 Angular 中通过 HttpClient 执行 Http Request 返回的 Observables 是 Hot Observales 还是 Cold Observables？我们先来写段代码测试下：在页面里显示30个 Github user 的基本信息，测试代码中用到的API在这里：【<a href="https://developer.github.com/v3/users/#get-all-users">Github API</a>】。</p>
+
+<p>先定义一个 service：RxjsCacheService，在这个 service 中定义一个方法去拿 github 的用户信息：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Injectable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">HttpClient</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/common/http</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">User</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../interface/rxjs-cache.interface</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">map</span><span class="p">,</span> <span class="nx">catchError</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">rxjs/operators</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="k">of</span><span class="p">,</span> <span class="nx">Observable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">rxjs</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Injectable</span><span class="p">()</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsCacheService</span> <span class="p">{</span>
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">http</span><span class="p">:</span> <span class="nx">HttpClient</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="kd">get</span> <span class="nx">users</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">requestUsers</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="nx">requestUsers</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// get the latest 30 github users: start from id =2</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="dl">"</span><span class="s2">https://api.github.com/users?since=1</span><span class="dl">"</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                <span class="nx">map</span><span class="p">(</span><span class="nx">respone</span> <span class="o">=&gt;</span> <span class="nx">respone</span><span class="p">),</span>
+                <span class="nx">catchError</span><span class="p">(</span><span class="nx">error</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">something went wrong </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">error</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">of</span><span class="p">([]);</span>
+                <span class="p">})</span>
+            <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>接口 rxjs-cache.interface 定义如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kr">interface</span> <span class="nx">User</span> <span class="p">{</span>
+    <span class="nl">login</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">id</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
+    <span class="nx">node_id</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">avatar_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">gravatar_id</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">html_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">followers_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">following_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">gists_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">starred_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">subscriptions_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">organizations_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">repos_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">events_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">received_events_url</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="kd">type</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="nx">site_admin</span><span class="p">:</span> <span class="nx">boolean</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>然后在定义一个 component：RxjsCacheComponent，代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Component</span><span class="p">,</span> <span class="nx">OnInit</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">RxjsCacheService</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./service/rxjs-cache.service</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">User</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./interface/rxjs-cache.interface</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Observable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">rxjs</span><span class="dl">'</span><span class="p">;</span>
+
+
+<span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+    <span class="na">templateUrl</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./rxjs-cache.component.html</span><span class="dl">"</span>
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsCacheComponent</span> <span class="k">implements</span> <span class="nx">OnInit</span> <span class="p">{</span>
+
+    <span class="k">private</span> <span class="nx">users$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">rxjsCacheService</span><span class="p">:</span> <span class="nx">RxjsCacheService</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="nx">ngOnInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">users$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">rxjsCacheService</span><span class="p">.</span><span class="nx">users</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>rxjs-cache.component.html 代码如下：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;h3&gt;</span>here is the github user lists:<span class="nt">&lt;/h3&gt;</span>
+
+<span class="nt">&lt;div</span> <span class="na">*ngFor=</span><span class="s">"let user of users$ |async"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">" display: flex;flex-direction: row;"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font-size: 0.9em;margin:10px;width: 10%"</span><span class="nt">&gt;&lt;strong&gt;</span>User Name:<span class="nt">&lt;/strong&gt;</span>  { { user.login } } <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font-size: 0.9em;margin:10px;width: 50%"</span><span class="nt">&gt;&lt;strong&gt;</span>GitHub URL:<span class="nt">&lt;/strong&gt;</span> { { user.url } } <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+
+<p>运行以上代码，在页面上列出了30位 github 用户的用户名和相应的 Github 地址，从上面的代码还是不能看出 HttpClient 返回的 Observable 是 Hot Observables 还是 Cold Observables。我们把 html 页面代码改一下：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;h3&gt;</span>here is the github user lists:<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">*ngFor=</span><span class="s">"let user of users$ |async"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">" display: flex;flex-direction: row;"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font-size: 0.9em;margin:10px;width: 10%"</span><span class="nt">&gt;&lt;strong&gt;</span>User Name:<span class="nt">&lt;/strong&gt;</span>  { { user.login } } <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font-size: 0.9em;margin:10px;width: 50%"</span><span class="nt">&gt;&lt;strong&gt;</span>GitHub URL:<span class="nt">&lt;/strong&gt;</span> { { user.url } } <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="nt">&lt;h3&gt;</span>here is the github user lists2:<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">*ngFor=</span><span class="s">"let user of users$ |async"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">" display: flex;flex-direction: row;"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font-size: 0.9em;margin:10px;width: 10%"</span><span class="nt">&gt;&lt;strong&gt;</span>User Name:<span class="nt">&lt;/strong&gt;</span>  { { user.login } } <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"font-size: 0.9em;margin:10px;width: 50%"</span><span class="nt">&gt;&lt;strong&gt;</span>GitHub URL:<span class="nt">&lt;/strong&gt;</span> { { user.url } } <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+
+<p>F12 打开浏览器的 DevTools，当前页面会调用两次 GET API（https://api.github.com/users?since=1），并且两个 user list 列出的30位用户信息一模一样：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/rxjs/rxjs-cache01.png" alt="rxjs-cache" height="100%" width="100%" /></p>
+
+<p>两个 userlist 订阅 users$，生成了两个 Observable 实例并且都是订阅开始之后才开始发送值，也就是说<strong>Angular 中通过 HttpClient 执行 Http Request 返回的 Observabl 是 Cold Observable</strong>。</p>
+
+<h2 id="会有什么样的性能问题">会有什么样的性能问题？</h2>
+
+<p>每次调用 API，都会生成一个新的 Observable 实例，有订阅之后才开始发送值，这也符合现在前端开发要求。但是实际开发过程中，有时候后端会有提供一些公用的常量 API，不同页面都需要用这些常量，按现在的调用 API 的方式，会导致常量 API 在不同的页面重复多次被调用，这种方式显然性能不好。</p>
+
+<p>那可以利用 RxJS 实现缓存效果吗？也就是第一次调用常量 API 以后，后续再调用这个 API 不需要执行 Http Request 从后端服务器拿值，直接从缓存里拿值？</p>
+
+<h2 id="通过-rxjs-实现缓存效果">通过 RxJS 实现缓存效果</h2>
+
+<p>在文章【<a href="https://limeii.github.io/2019/07/rxjs-subject/">RxJS：四种Subject的用法和区别</a>】中详细介绍了 ReplaySubject，用 ReplaySubject(size) 可以发送之前的旧值给新的订阅者，size 是定义发送具体多少个旧值给新的订阅者。那么在示例代码中可以用 ReplaySubject 实现缓存效果。</p>
+
+<p>shareReplay 这个操作符会自动创建一个 ReplaySubject，一旦 http request 执行一次以后，就会在后续的订阅和源头 Observable之间建立一个 ReplaySubject，ReplaySubject 是一个多播的 Hot Observable，后续订阅都是从这个中间 ReplaySubject 拿到最后一个值，从而达到缓存效果。</p>
+
+<p>我们把 service：RxjsCacheService 改成如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Injectable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">HttpClient</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/common/http</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">User</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../interface/rxjs-cache.interface</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">map</span><span class="p">,</span> <span class="nx">catchError</span><span class="p">,</span> <span class="nx">shareReplay</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">rxjs/operators</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="k">of</span><span class="p">,</span> <span class="nx">Observable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">rxjs</span><span class="dl">'</span><span class="p">;</span>
+
+
+<span class="kd">const</span> <span class="nx">CACHE_SIZE</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Injectable</span><span class="p">()</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsCacheService</span> <span class="p">{</span>
+
+    <span class="k">private</span> <span class="nx">cacheUsers$</span><span class="p">:</span><span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">http</span><span class="p">:</span> <span class="nx">HttpClient</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="kd">get</span> <span class="nx">users</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span><span class="p">){</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">requestUsers</span><span class="p">()</span>
+            <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                <span class="nx">shareReplay</span><span class="p">(</span><span class="nx">CACHE_SIZE</span><span class="p">)</span>
+            <span class="p">);</span>
+        <span class="p">}</span>
+       <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="nx">requestUsers</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="dl">"</span><span class="s2">https://api.github.com/users?since=1</span><span class="dl">"</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                <span class="nx">map</span><span class="p">(</span><span class="nx">respone</span> <span class="o">=&gt;</span> <span class="nx">respone</span><span class="p">),</span>
+                <span class="nx">catchError</span><span class="p">(</span><span class="nx">error</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">something went wrong </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">error</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">of</span><span class="p">([]);</span>
+                <span class="p">})</span>
+            <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>运行以上代码发现，页面里两个 user list 都是列出了相同的30位 Github 用户信息，但是只调用了一次 GET API（https://api.github.com/users?since=1），也就是说第二订阅不是从通过后端 API 拿到用户信息，而是从 ReplaySubject 中拿到的。</p>
+
+<p>整个流程如下：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/rxjs/rxjs-cache02.png" alt="rxjs-cache" height="100%" width="100%" /></p>
+
+<p>页面的第一个 userlist 也就是第一个 consumer，是通过调用API拿到30个用户信息，第二个 userlist 也就是第二个 consumer，直接从 cacheUsers$ 拿到这30个用户信息。cacheUsers$ 是 ReplaySubject(1) 把最后一个旧值（30个用户信息）发送给新的订阅者（第二个 userlist ），从而实现了缓存效果。</p>
+:ET

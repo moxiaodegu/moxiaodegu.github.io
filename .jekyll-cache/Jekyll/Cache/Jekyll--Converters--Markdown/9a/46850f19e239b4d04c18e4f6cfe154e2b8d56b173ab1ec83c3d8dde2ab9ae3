@@ -1,0 +1,2 @@
+I"<p>在【<a href="https://limeii.github.io/2019/06/angular-changedetection/">Angular Change Detection:变化检测机制</a>】这篇文章里介绍了 Angular 的变化检测机制，也提到了异步事件都会触发整个 Angular 应用的变化检测。</p>
+:ET

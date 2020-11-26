@@ -1,0 +1,264 @@
+I":�<p>在上一篇文章【<a href="https://limeii.github.io/2019/08/rxjs-caching/">RxJS：如何通过RxJS实现缓存</a>】里介绍了如何在 Anuglar2+ 中结合 HttpClient 和 ReplaySubject 缓存 API Response 数据，减少重复调用 API 从而提高性能，这种方法适用于每次返回的 Response 数据都不变的常量 API。在实际开发过程中，还有一种 API 返回的值随着时间会有变化，这个时候就需要去更新 RxJS缓存里的值，从用户体检的角度出发，先在页面显示一个消息通知用户数据有更新，让用户选择是否需要更新页面内容，而不是直接在每次缓存更新以后直接刷新页面数据。接下来就来介绍如何基于 RxJS 实现简单的消息通知机制。</p>
+
+<blockquote>
+<p>
+这篇文章里用到的<font color="#0000FF"> RxJS 缓存</font>都是指在 Anuglar2+ 中结合 HttpClient 和 ReplaySubject 缓存 API Response 数据，后续新的订阅者都可以直接从 ReplaySubject 拿 API Response 数据。
+</p>
+</blockquote>
+
+<h2 id="更新-rxjs-缓存">更新 RxJS 缓存</h2>
+
+<p>关于在什么时候要更新 RxJS 缓存，不再本文章的讨论范围内，在这里就直接每隔10秒调用一次 API，把新拿到的值赋值给 RxJS 缓存。</p>
+
+<p>还是用 Github 的 get all users API：<a href="https://developer.github.com/v3/users/#get-all-users">Github API</a>，每10s去调用这个 API 拿到30个不同的 github 用户信息。用 <a href="https://rxjs-cn.github.io/learn-rxjs-operators/operators/creation/interval.html">interval</a> 可以实现每隔10s调用一次 API，但是会有一个问题，用户在第一次进到页面的时候需要等10s才能看到30位用户信息。我们希望用户第一次进到页面立马看到30位用户信息，之后是每隔10s调用一次API更新30位 git 用户信息，<a href="https://rxjs-cn.github.io/learn-rxjs-operators/operators/creation/timer.html">timer</a>操作符可以满足这个要求，<code class="language-plaintext highlighter-rouge">timer(0,10000)</code>表示首次不用等直接调用 API 拿到30位 git 用户信息，之后每隔10s调用一次 API。Service 具体代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">CACHE_SIZE</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">REFRESH_INTERVAL</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">API_ENDPOINT</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">https://api.github.com/users?since=</span><span class="dl">"</span><span class="p">;</span>
+<span class="p">@</span><span class="nd">Injectable</span><span class="p">()</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsNotificationService</span> <span class="p">{</span>
+    <span class="k">private</span> <span class="nx">cacheUsers$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nx">userStartId</span><span class="p">:</span> <span class="kr">number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">http</span><span class="p">:</span> <span class="nx">HttpClient</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="kd">get</span> <span class="nx">users</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">const</span> <span class="nx">timer$</span> <span class="o">=</span> <span class="nx">timer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">REFRESH_INTERVAL</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span> <span class="o">=</span> <span class="nx">timer$</span>
+                <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                    <span class="nx">switchMap</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">requestUsers</span><span class="p">()),</span>
+                    <span class="nx">shareReplay</span><span class="p">(</span><span class="nx">CACHE_SIZE</span><span class="p">)</span>
+                <span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="nx">requestUsers</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">userStartId</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">userStartId</span> <span class="o">+</span> <span class="mi">30</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="nx">API_ENDPOINT</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">userStartId</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                <span class="nx">map</span><span class="p">(</span><span class="nx">respone</span> <span class="o">=&gt;</span> <span class="nx">respone</span><span class="p">),</span>
+                <span class="nx">catchError</span><span class="p">(</span><span class="nx">error</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">something went wrong </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">error</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">of</span><span class="p">([]);</span>
+                <span class="p">})</span>
+            <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>定义一个 RxjsNotificationComponent，具体代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+    <span class="na">templateUrl</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./rxjs-notification.component.html</span><span class="dl">"</span>
+
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsNotificationComponent</span> <span class="p">{</span>
+    <span class="nx">users$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">rxjsNotificationService</span><span class="p">:</span> <span class="nx">RxjsNotificationService</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="nx">ngOnInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">users$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">rxjsNotificationService</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">pipe</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p>rxjs-notification.component.html 代码如下：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span> <span class="na">style=</span><span class="s">"margin-top:30px;width: 40%;"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row justify-content-md-center"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"margin: 10px;"</span> <span class="na">class=</span><span class="s">"card w-100"</span> <span class="na">*ngFor=</span><span class="s">"let user of users$ |async"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"card-body"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;h5</span> <span class="na">class=</span><span class="s">"card-title"</span><span class="nt">&gt;&lt;strong&gt;</span>User Name:<span class="nt">&lt;/strong&gt;</span>  { { user.login } } <span class="nt">&lt;/h5&gt;</span>
+                <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"card-text"</span><span class="nt">&gt;&lt;strong&gt;</span>GitHub URL:<span class="nt">&lt;/strong&gt;</span>  { { user.url } } <span class="nt">&lt;/p&gt;</span>
+            <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+
+<p>运行代码发现，刚进页面会调用一次 API，之后每隔10s会去调用一次 API 更新 RxJs 缓存，页面的用户信息也是每隔10秒就会更新。这个用户体验并不好，我们不希望用户在浏览页面的时候，每10s页面里的信息就自动更新了。而是希望弹出一个消息通知用户有新的用户信息，让用户选择是否需要更新页面内容。</p>
+
+<h2 id="基于-rxjs-的简单消息通知机制">基于 RxJS 的简单消息通知机制</h2>
+
+<p>我们先来理一下整个消息通知的流程：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/rxjs/rxjs-notification01.png" alt="rxjs-notification" height="100%" width="100%" /></p>
+
+<p>在我们的例子中，页面需要显示30位 github 用户信息是数据消费者（consumer）。</p>
+
+<p>当用户进到页面（0s）立马去调用 API 拿到30位git用户信息放在 RxJS 缓存里并显示在页面上，之后每隔10s都会去调用一次 API 拿到全新的30位 github 用户信息更新 RxJS 缓存里的数据但不更新页面显示的数据，此时会在页面显示一个消息提醒用户有新数据更新，如果用户点击更新按钮，提醒消息会消失同时新拿到的用户信息会更新在页面上，如果不点击更新按钮，页面列出的 github 用户信息不更新。</p>
+
+<p>我们来看下动图效果：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/rxjs/rxjs-notification02.gif" alt="rxjs-notification" height="100%" width="100%" /></p>
+
+<p>在前面已经把每隔10s去调用一次 API 的 service 已经写好了，我们只要在 component 和 html 页面里，把剩下的代码写完。</p>
+
+<p>首先需要拿到第一次进入页面，也就是0s调用 API 拿到的30位 github 用户信息，可以通过<a href="https://rxjs-cn.github.io/learn-rxjs-operators/operators/filtering/take.html">take(1)</a>操作符拿到页面首次加载的30位 github 用户信息。再定义<code class="language-plaintext highlighter-rouge">updateClick$ = new Subject&lt;void&gt;();</code>用户每次点击更新按钮，会再去拿到最后一次API返回的用户信息，然后在通过 merge 操作符把两个 Observable 合并，具体代码可以如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nx">users$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+    <span class="nx">updateClick$</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Subject</span><span class="o">&lt;</span><span class="k">void</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">rxjsNotificationService</span><span class="p">:</span> <span class="nx">RxjsNotificationService</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="nx">ngOnInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">initialUsers$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getUserOnce</span><span class="p">();</span>
+
+        <span class="kd">const</span> <span class="nx">updateUsers$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">updateClick$</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+            <span class="nx">mergeMap</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">getUserOnce</span><span class="p">())</span>
+        <span class="p">);</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">users$</span> <span class="o">=</span> <span class="nx">merge</span><span class="p">(</span><span class="nx">initialUsers$</span><span class="p">,</span> <span class="nx">updateUsers$</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">getUserOnce</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">rxjsNotificationService</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">take</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+<p>页面代码如下：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span> <span class="na">style=</span><span class="s">"margin-top:30px;width: 40%;"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row justify-content-md-center"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"alert alert-warning w-100"</span> <span class="na">role=</span><span class="s">"alert"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;strong&gt;</span>Warning!<span class="nt">&lt;/strong&gt;</span> new user infor available, please click to update!
+            <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">style=</span><span class="s">"margin-left: 20px;"</span> <span class="na">class=</span><span class="s">"btn btn-warning"</span>
+                <span class="na">(click)=</span><span class="s">"updateClick$.next()"</span><span class="nt">&gt;</span>Update<span class="nt">&lt;/button&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row justify-content-md-center"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"margin: 10px;"</span> <span class="na">class=</span><span class="s">"card w-100"</span> <span class="na">*ngFor=</span><span class="s">"let user of users$ |async"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"card-body"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;h5</span> <span class="na">class=</span><span class="s">"card-title"</span><span class="nt">&gt;&lt;strong&gt;</span>User Name:<span class="nt">&lt;/strong&gt;</span>  { { user.login } } <span class="nt">&lt;/h5&gt;</span>
+                <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"card-text"</span><span class="nt">&gt;&lt;strong&gt;</span>GitHub URL:<span class="nt">&lt;/strong&gt;</span>  { { user.url } } <span class="nt">&lt;/p&gt;</span>
+            <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+
+<p>关于显示和隐藏更新按钮，我们可以通过<a href="https://rxjs-cn.github.io/learn-rxjs-operators/operators/transformation/mapto.html">mapTo</a>实现:</p>
+
+<p>component 的完整代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Component</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Observable</span><span class="p">,</span> <span class="nx">Subject</span><span class="p">,</span> <span class="nx">merge</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">rxjs</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">User</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./interface/rxjs-notification.interface</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">RxjsNotificationService</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./service/rxjs-notification.service</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">take</span><span class="p">,</span> <span class="nx">mergeMap</span><span class="p">,</span> <span class="nx">skip</span><span class="p">,</span> <span class="nx">mapTo</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">rxjs/operators</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+    <span class="na">templateUrl</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./rxjs-notification.component.html</span><span class="dl">"</span>
+
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsNotificationComponent</span> <span class="p">{</span>
+    <span class="nx">users$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+    <span class="nx">updateClick$</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Subject</span><span class="o">&lt;</span><span class="k">void</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="nx">showNotificatoin$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nx">boolean</span><span class="o">&gt;</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">rxjsNotificationService</span><span class="p">:</span> <span class="nx">RxjsNotificationService</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="nx">ngOnInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">initialUsers$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getUserOnce</span><span class="p">();</span>
+
+        <span class="kd">const</span> <span class="nx">updateUsers$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">updateClick$</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+            <span class="nx">mergeMap</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">getUserOnce</span><span class="p">())</span>
+        <span class="p">);</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">users$</span> <span class="o">=</span> <span class="nx">merge</span><span class="p">(</span><span class="nx">initialUsers$</span><span class="p">,</span> <span class="nx">updateUsers$</span><span class="p">);</span>
+
+        <span class="kd">const</span> <span class="nx">initNotification$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getNotifications</span><span class="p">();</span>
+        <span class="kd">const</span> <span class="nx">show$</span> <span class="o">=</span> <span class="nx">initNotification$</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">mapTo</span><span class="p">(</span><span class="kc">true</span><span class="p">));</span>
+        <span class="kd">const</span> <span class="nx">hide$</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">updateClick$</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">mapTo</span><span class="p">(</span><span class="kc">false</span><span class="p">));</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">showNotificatoin$</span> <span class="o">=</span> <span class="nx">merge</span><span class="p">(</span><span class="nx">show$</span><span class="p">,</span> <span class="nx">hide$</span><span class="p">);</span>
+
+    <span class="p">}</span>
+
+    <span class="nx">getUserOnce</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">rxjsNotificationService</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">take</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="nx">getNotifications</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">rxjsNotificationService</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">skip</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>html 完整代码如下：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span> <span class="na">style=</span><span class="s">"margin-top:30px;width: 40%;"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row justify-content-md-center"</span> <span class="na">*ngIf=</span><span class="s">"showNotificatoin$ | async"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"alert alert-warning w-100"</span> <span class="na">role=</span><span class="s">"alert"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;strong&gt;</span>Warning!<span class="nt">&lt;/strong&gt;</span> new user infor available, please click to update!
+            <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">"button"</span> <span class="na">style=</span><span class="s">"margin-left: 20px;"</span> <span class="na">class=</span><span class="s">"btn btn-warning"</span>
+                <span class="na">(click)=</span><span class="s">"updateClick$.next()"</span><span class="nt">&gt;</span>Update<span class="nt">&lt;/button&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row justify-content-md-center"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">style=</span><span class="s">"margin: 10px;"</span> <span class="na">class=</span><span class="s">"card w-100"</span> <span class="na">*ngFor=</span><span class="s">"let user of users$ |async"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"card-body"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;h5</span> <span class="na">class=</span><span class="s">"card-title"</span><span class="nt">&gt;&lt;strong&gt;</span>User Name:<span class="nt">&lt;/strong&gt;</span>  { { user.login } } <span class="nt">&lt;/h5&gt;</span>
+                <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"card-text"</span><span class="nt">&gt;&lt;strong&gt;</span>GitHub URL:<span class="nt">&lt;/strong&gt;</span>  { { user.url } } <span class="nt">&lt;/p&gt;</span>
+            <span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div></div>
+
+<p>service 完整代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Injectable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">HttpClient</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/common/http</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">User</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../interface/rxjs-notification.interface</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">map</span><span class="p">,</span> <span class="nx">catchError</span><span class="p">,</span> <span class="nx">shareReplay</span><span class="p">,</span> <span class="nx">switchMap</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">rxjs/operators</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="k">of</span><span class="p">,</span> <span class="nx">Observable</span><span class="p">,</span> <span class="nx">timer</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">rxjs</span><span class="dl">'</span><span class="p">;</span>
+
+
+<span class="kd">const</span> <span class="nx">CACHE_SIZE</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">REFRESH_INTERVAL</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">API_ENDPOINT</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">https://api.github.com/users?since=</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Injectable</span><span class="p">()</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">RxjsNotificationService</span> <span class="p">{</span>
+
+    <span class="k">private</span> <span class="nx">cacheUsers$</span><span class="p">:</span> <span class="nx">Observable</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+    <span class="k">private</span> <span class="nx">userStartId</span><span class="p">:</span> <span class="kr">number</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">http</span><span class="p">:</span> <span class="nx">HttpClient</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="kd">get</span> <span class="nx">users</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">const</span> <span class="nx">timer$</span> <span class="o">=</span> <span class="nx">timer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">REFRESH_INTERVAL</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span> <span class="o">=</span> <span class="nx">timer$</span>
+                <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                    <span class="nx">switchMap</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">requestUsers</span><span class="p">()),</span>
+                    <span class="nx">shareReplay</span><span class="p">(</span><span class="nx">CACHE_SIZE</span><span class="p">)</span>
+                <span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">cacheUsers$</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="nx">requestUsers</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">userStartId</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">userStartId</span> <span class="o">+</span> <span class="mi">30</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">http</span><span class="p">.</span><span class="kd">get</span><span class="o">&lt;</span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="nx">API_ENDPOINT</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">userStartId</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span>
+                <span class="nx">map</span><span class="p">(</span><span class="nx">respone</span> <span class="o">=&gt;</span> <span class="nx">respone</span><span class="p">),</span>
+                <span class="nx">catchError</span><span class="p">(</span><span class="nx">error</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">something went wrong </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">error</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="k">of</span><span class="p">([]);</span>
+                <span class="p">})</span>
+            <span class="p">)</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+:ET

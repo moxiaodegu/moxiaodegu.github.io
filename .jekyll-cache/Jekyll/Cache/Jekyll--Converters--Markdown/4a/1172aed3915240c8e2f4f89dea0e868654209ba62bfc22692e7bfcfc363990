@@ -1,0 +1,8 @@
+I"�<p>JavaScript中定义函数有这几种方式：</p>
+<ul>
+  <li>函数声明</li>
+  <li>函数表达式</li>
+  <li>立即执行函数</li>
+  <li>new Funcion(arg1,arg2…,argn,body)创建函数。</li>
+</ul>
+:ET

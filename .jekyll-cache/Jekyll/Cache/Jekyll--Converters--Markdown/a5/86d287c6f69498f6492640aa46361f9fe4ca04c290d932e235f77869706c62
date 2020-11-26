@@ -1,0 +1,99 @@
+I"?0<p>在 <a href="https://limeii.github.io/2018/09/issues-india-project">印度人代码</a> 这篇文章中有提到需要在每次webpack build的时候需要每次都动态的去替换MVC中的index.cshtml文件。</p>
+
+<h2 id="为什么要替换indexhtml文件">为什么要替换index.html文件</h2>
+
+<p>在现有的这个框架里，每次webpack打包生成的bunlde文件都是 app.bunlde.js / vendor.bundle.js / polyfills.bunlde.js,这个会有 <a href="https://limeii.github.io/2018/09/issues-cache-busting">缓存问题</a>。</p>
+
+<p>为了解决缓存问题，每次如果对应的bundle文件里面有代码改动，利用webpack contenthash 会生成唯一的hashcode放在bundle文件名里，比如： app.7e90eca5a2a376746ee7.bundle.js.
+bundle，文件名不一样，会强制浏览器去拿最新的代码，从而解决缓存问题。</p>
+
+<p>那么在index.cshtml文件里，每次引用的bundle文件也会不一样，所以这个index文件不能像之前一样写死在MVC里面。需要在build结束之后，copy最新的index.cshtml文件去替换MVC框架里对应的文件。</p>
+
+<p>filemanager-webpack-plugin这个插件就可以用来在build结束之后对文件进行处理。</p>
+
+<h2 id="filemanager-webpack-plugin">filemanager-webpack-plugin</h2>
+
+<p>我最开始的想法是用copy-webpack-plugin这个插件直接把文件copy到对应的目录下去，实际问题是copy-webpack-plugin这个插件会在index.cshtml文件生成之前执行，导致报错文件找不到。</p>
+
+<p>filemanager-webpack-plugin这个插件就允许你在build之前或者之后 move, delete, 压缩（.zip/.tar/.tar.gz）文件或者文件夹。</p>
+
+<h2 id="用法">用法</h2>
+
+<p>先安装插件：</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">npm</span> <span class="nx">install</span> <span class="nx">filemanager</span><span class="o">-</span><span class="nx">webpack</span><span class="o">-</span><span class="nx">plugin</span> <span class="o">--</span><span class="nx">save</span><span class="o">-</span><span class="nx">dev</span>
+</code></pre></div></div>
+<p>webpack config 文件里：</p>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">FileManagerPlugin</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">filemanager-webpack-plugin</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">plugins</span><span class="p">:</span> <span class="p">[</span>
+    <span class="k">new</span> <span class="nx">FileManagerPlugin</span><span class="p">({</span>
+      <span class="na">onEnd</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">copy</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/from</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/**/*.js</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/fromfile.txt</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/tofile.txt</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/**/*.{html,js}</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/{file1,file2}.js</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/file-[hash].js</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to</span><span class="dl">'</span> <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="na">move</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/from</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/fromfile.txt</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/tofile.txt</span><span class="dl">'</span> <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="na">delete</span><span class="p">:</span> <span class="p">[</span>
+         <span class="dl">'</span><span class="s1">/path/to/file.txt</span><span class="dl">'</span><span class="p">,</span>
+         <span class="dl">'</span><span class="s1">/path/to/directory/</span><span class="dl">'</span>
+        <span class="p">],</span>
+        <span class="na">mkdir</span><span class="p">:</span> <span class="p">[</span>
+         <span class="dl">'</span><span class="s1">/path/to/directory/</span><span class="dl">'</span><span class="p">,</span>
+         <span class="dl">'</span><span class="s1">/another/directory/</span><span class="dl">'</span>
+        <span class="p">],</span>
+        <span class="na">archive</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/from</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to.zip</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/**/*.js</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to.zip</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/fromfile.txt</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to.zip</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/fromfile.txt</span><span class="dl">'</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to.zip</span><span class="dl">'</span><span class="p">,</span> <span class="na">format</span><span class="p">:</span> <span class="dl">'</span><span class="s1">tar</span><span class="dl">'</span> <span class="p">},</span>
+          <span class="p">{</span> 
+             <span class="na">source</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/fromfile.txt</span><span class="dl">'</span><span class="p">,</span> 
+             <span class="na">destination</span><span class="p">:</span> <span class="dl">'</span><span class="s1">/path/to.tar.gz</span><span class="dl">'</span><span class="p">,</span> 
+             <span class="na">format</span><span class="p">:</span> <span class="dl">'</span><span class="s1">tar</span><span class="dl">'</span><span class="p">,</span>
+             <span class="na">options</span><span class="p">:</span> <span class="p">{</span>
+               <span class="na">gzip</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+               <span class="na">gzipOptions</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">level</span><span class="p">:</span> <span class="mi">1</span>
+               <span class="p">},</span>
+               <span class="na">globOptions</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">nomount</span><span class="p">:</span> <span class="kc">true</span>
+               <span class="p">}</span>
+             <span class="p">}</span>
+           <span class="p">}</span>
+
+        <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">})</span>
+  <span class="p">],</span>
+  <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="具体我项目里用到的copy功能">具体我项目里用到的copy功能：</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="nx">plugins</span><span class="p">:</span> <span class="p">[</span>
+     <span class="k">new</span> <span class="nx">HtmlWebpackPlugin</span><span class="p">({</span>
+            <span class="na">template</span><span class="p">:</span> <span class="dl">'</span><span class="s1">./src/index.cshtml</span><span class="dl">'</span><span class="p">,</span>
+            <span class="na">inject</span><span class="p">:</span> <span class="dl">'</span><span class="s1">body</span><span class="dl">'</span><span class="p">,</span>
+            <span class="na">filename</span><span class="p">:</span> <span class="dl">'</span><span class="s1">index.cshtml</span><span class="dl">'</span>
+        <span class="p">}),</span>
+        <span class="k">new</span> <span class="nx">FileManagerPlugin</span><span class="p">({</span>
+            <span class="na">onEnd</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="na">move</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span> <span class="na">source</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./dist/index.cshtml</span><span class="dl">"</span><span class="p">,</span> <span class="na">destination</span><span class="p">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">cwd</span><span class="p">(),</span> <span class="dl">'</span><span class="s1">Views/Shared/index.cshtml</span><span class="dl">'</span><span class="p">)</span> <span class="p">}</span>
+                    <span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">})</span>
+     <span class="p">]</span>
+</code></pre></div></div>
+:ET

@@ -1,50 +1,52 @@
-# Site settings
+# Basic
 title: 蘑小De菇
 subtitle: 个人技术博客
-description: hi，我是蘑小De菇，一名前端开发者。
 welcome_message: 记录个人对技术的理解和开发过程中遇到的问题，欢迎了解更多。
-url: https://moxiaodegu.github.io/#blog
-baseurl: '/'
-# google_analytics: 'UA-XXXXXX-X'
-# disqus_shortname: 'your-disqus-name'
-# disable_landing_page: true
+description:  hi，我是蘑小De菇，一名前端开发者。
+creator: 蘑小De菇
 
-author:
-  name: 蘑小De菇
-  email: moxiaodegu@163.com
-  # twitter_username: moxiaodegu
-  # facebook_username: joshgerdes
-  github_username:  moxiaodegu
-  # linkedin_username:  joshgerdes
+url: https://moxiaodegu.github.io/
 
-tag:
-  name: Tag
-  url: https://moxiaodegu.github.io/tags/
-  description: 查看标签
+permalink: /:year/:month/:title/
 
-git:
-  name: GitHub
-  url: https://www.github.com/moxiaodegu
-  description: 访问GitHub
-
-# Build settings
-destination: _site
-gems: [jekyll-paginate]
-paginate: 10
-permalink: /:year/:title/
-kramdown: kramdown
+# Format
 highlighter: rouge
 
+# supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
+cover_color: slate
 
-sass:
-    sass_dir: _sass
-    style: compressed
+# The blog button should not be removed.
+blog_button:
+    title: 博客
+    description: 访问博客
 
-kramdown:
-  # use Github Flavored Markdown
-  input: GFM
-  # do not replace newlines by <br>s
-  hard_wrap: false
+tag_button:
+    title: 标签
+    description: 技术文章分类
+    url: 'https://limeii.github.io/tag/'  
 
-plugins: ['jekyll-paginate']
-exclude: ['README.md', 'Gemfile', 'Gemfile.lock']
+# Navigation buttons in the front page.
+nav:
+    #- {title: 简历, description: 我的简历, url: 'https://github.com/limeii'}
+    - {title: Git, description: 个人代码, url: 'https://github.com/limeii'}
+    # - {title: Another Button, description: A button, url: 'http://example.com'}
+
+# Pagination
+plugins: [jekyll-paginate]
+paginate: 10
+paginate_path: "page/:num/"
+
+# Comment
+comment:
+    disqus: 
+    # duoshuo: 
+    
+# Social
+social:
+    github: limeii
+    mail: limei90s@foxmail.com
+
+# Google Analytics
+ga:
+     id: UA-142143336-1
+     host: auto

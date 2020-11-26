@@ -1,0 +1,7 @@
+I"�<p>RxJS 中 Observables 分为两种：Cold Observables 和 Hot Observables，这两个到底有什么区别呢？我们先来看下【<a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/creating.md#cold-vs-hot-observables">RxJS官方</a>】给出的解释：</p>
+<blockquote>
+<p>
+Cold observables start running upon subscription, i.e., the observable sequence only starts pushing values to the observers when Subscribe is called. (…) This is different from hot observables such as mouse move events or stock tickers which are already producing values even before a subscription is active.
+</p>
+</blockquote>
+:ET

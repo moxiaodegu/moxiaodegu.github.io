@@ -1,0 +1,122 @@
+I"i7<p>先来看下ES6中箭头函数的基本语法：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">func</span> <span class="o">=</span> <span class="nx">value</span> <span class="o">=&gt;</span> <span class="nx">value</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>相当于：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">func</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">value</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>如果需要传入多个参数：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">func</span> <span class="o">=</span> <span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">num</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">value</span> <span class="o">*</span> <span class="nx">num</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>上面箭头函数例子中都省略了<code class="language-plaintext highlighter-rouge">return</code>关键字和代码的花括号，在箭头函数中如果方法体中只有一行代码，可以省略关键字和方法体的花括号，直接简化成<code class="language-plaintext highlighter-rouge">value =&gt; value</code>。</p>
+
+<p>如果函数的代码块需要有多条语句：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">func</span> <span class="o">=</span> <span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">num</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">value</span> <span class="o">*</span> <span class="nx">num</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>如果需要返回一个对象，箭头函数的方法体必须放在大括号<code class="language-plaintext highlighter-rouge">()</code>中，这样做的原因是：没有大括号，JS引擎没办分区分是正常定义一个对象还是一个箭头函数体:</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">func</span> <span class="o">=</span> <span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">num</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">({</span> <span class="na">value</span><span class="p">:</span> <span class="nx">value</span><span class="p">,</span> <span class="na">num</span><span class="p">:</span> <span class="nx">num</span> <span class="p">});</span> <span class="c1">//正确写法</span>
+
+<span class="kd">let</span> <span class="nx">func</span> <span class="o">=</span> <span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">num</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="na">value</span><span class="p">:</span> <span class="nx">value</span><span class="p">,</span> <span class="na">num</span><span class="p">:</span> <span class="nx">num</span> <span class="p">};</span> <span class="c1">//会报错</span>
+</code></pre></div></div>
+
+<h2 id="与普通函数的区别">与普通函数的区别</h2>
+<h3 id="没有this">没有this</h3>
+<p>箭头函数式的this需要通过查找作用域链来确定，它的this是指包在它外面的作用域的this，我们来看下以下代码中的this分别指的是什么：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">a</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">);</span> <span class="c1">// obj</span>
+    <span class="p">},</span>
+    <span class="na">b</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">);</span> <span class="c1">// windows</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>obj.b是一个箭头函数，它的this是包在它外层的词法作用域的this（离它最近的词法作用域），obj对象不是可执行代码，所以它不是离箭头函数最近的词法作用域，再往外就是全局作用域window了，所以obj.b的this指的是windows。</p>
+
+<p>再来看一段代码：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">pageHandler</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="na">id</span><span class="p">:</span> <span class="dl">"</span><span class="s2">123456</span><span class="dl">"</span><span class="p">,</span>
+
+    <span class="na">init</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">click</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">doSomething</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">type</span><span class="p">);</span>     <span class="c1">// error</span>
+        <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+    <span class="p">},</span>
+
+    <span class="na">doSomething</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Handling </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">type</span> <span class="o">+</span> <span class="dl">"</span><span class="s2"> for </span><span class="dl">"</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+</code></pre></div></div>
+
+<p>在调用<code class="language-plaintext highlighter-rouge">pageHandler.init</code>方法的时候会报错，报错的函数是个回调函数，这个回调函数的this指的全局变量windows，在全局变量里没有doSomething这个方法，所以会报错。那么怎么才能让它不报错呢？</p>
+
+<p>第一种方式是通过bind来指定this：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">pageHandler</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="dl">"</span><span class="s2">123456</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">init</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">click</span><span class="dl">"</span><span class="p">,</span> <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">doSomething</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span>
+        <span class="p">}).</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">),</span> <span class="kc">false</span><span class="p">)</span>
+
+    <span class="p">},</span>
+    <span class="na">doSomething</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Handling</span><span class="dl">"</span> <span class="o">+</span> <span class="nx">type</span> <span class="o">+</span> <span class="dl">"</span><span class="s2"> for </span><span class="dl">"</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>.bind(this)中的this是指pageHandler这个对象，通过bind生成一个this指向pageHandler的新函数，这样执行init方法的时候不会报错，看起来怪怪的有没有。</p>
+
+<p>第二种方式是通过箭头函数：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">pageHandler</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="dl">"</span><span class="s2">12345</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">init</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nb">document</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">click</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">doSomething</span><span class="p">();</span>
+        <span class="p">},</span> <span class="kc">false</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="na">doSomething</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Handling</span><span class="dl">"</span> <span class="o">+</span> <span class="nx">type</span> <span class="o">+</span> <span class="dl">"</span><span class="s2"> for </span><span class="dl">"</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>把init中的回调函数改成了箭头函数，箭头函数的this是它最近的作用域链上的this，也就是init这个方法的this，也就是pageHandler这个对象，这样就可以达到目的不报错啦。</p>
+
+<p><strong>需要注意的是，箭头函数不能改变this的值，普通函数可以通过call、apply、bind来指定this，但是箭头函数的this是不能改的。</strong></p>
+
+<h3 id="没有arguments">没有arguments</h3>
+<p>访问箭头函数的arguments，其实也是访问包在它外面的非箭头函数的arguments。</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">foo</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">foo</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)());</span> <span class="c1">//1</span>
+</code></pre></div></div>
+
+<h3 id="不能通过new关键字调用">不能通过new关键字调用。</h3>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Foo</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span><span class="p">{};</span>
+<span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">();</span> <span class="c1">// TypeError: Foo is not a constructor</span>
+</code></pre></div></div>
+<h3 id="没有原型">没有原型</h3>
+<p>没有<code class="language-plaintext highlighter-rouge">prototype</code>, 但是有<code class="language-plaintext highlighter-rouge">__proto__</code>指向function。</p>
+
+<h3 id="没有super也是通过包在它外面的非箭头函数来决定的">没有super，也是通过包在它外面的非箭头函数来决定的。</h3>
+:ET

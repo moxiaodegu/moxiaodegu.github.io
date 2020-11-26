@@ -1,0 +1,88 @@
+I"�=<p>我们先来看下数组的拷贝，通常我们会用<code class="language-plaintext highlighter-rouge">slice()</code> <code class="language-plaintext highlighter-rouge">concat()</code>方法实现数组拷贝：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">];</span>
+<span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">concat</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">slice</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr1</span><span class="p">);</span> <span class="c1">//[1, 2, 3, 4, 5]</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr2</span><span class="p">);</span> <span class="c1">//[1, 2, 3, 4, 5]</span>
+</code></pre></div></div>
+<p><code class="language-plaintext highlighter-rouge">slice()</code> <code class="language-plaintext highlighter-rouge">concat()</code>都是返回了一个新数组，没有改变原来的数组，看起来像是深拷贝。</p>
+
+<p>我们再来看一个例子：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">{</span> <span class="na">value</span><span class="p">:</span> <span class="mi">5</span> <span class="p">}];</span>
+<span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">concat</span><span class="p">();</span>
+<span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="nx">arr</span><span class="p">.</span><span class="nx">slice</span><span class="p">();</span>
+<span class="nx">arr</span><span class="p">[</span><span class="mi">4</span><span class="p">].</span><span class="nx">value</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr1</span><span class="p">);</span> <span class="c1">//[1, 2, 3, 4, { value: 6 }]</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr2</span><span class="p">);</span> <span class="c1">//[1, 2, 3, 4, { value: 6 }]</span>
+</code></pre></div></div>
+<p>这边可以看到，如果数组里有对象，那么不会拷贝对象的值，而是拷贝对象的引用，原来数据对象的值发生改变，由于拷贝的是对象的引用，新拷贝的数组中对象的值也发生改变，拷贝的不是很彻底，<code class="language-plaintext highlighter-rouge">slice()</code> <code class="language-plaintext highlighter-rouge">concat()</code>是<strong>浅拷贝</strong>，对于对象，我们通常通过<code class="language-plaintext highlighter-rouge">assign()</code>或者展开运算符<code class="language-plaintext highlighter-rouge">...</code>来实现拷贝，同样如果对象里嵌套了对象，也只能实现浅拷贝：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">mei</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">address</span><span class="p">:</span> <span class="p">{</span><span class="na">city</span><span class="p">:</span> <span class="dl">"</span><span class="s2">shanghai</span><span class="dl">"</span><span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">obj1</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">assign</span><span class="p">({},</span><span class="nx">obj</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">obj2</span> <span class="o">=</span> <span class="p">{...</span><span class="nx">obj</span><span class="p">};</span>
+<span class="nx">obj</span><span class="p">.</span><span class="nx">address</span><span class="p">.</span><span class="nx">city</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">beijing</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">obj1</span><span class="p">);</span> <span class="c1">//{name: "mei", address:{city: "beijing"}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">obj2</span><span class="p">);</span> <span class="c1">//{name: "mei", address:{city: "beijing"}</span>
+</code></pre></div></div>
+
+<h2 id="利用jsonstringify实现对数组和对象的深拷贝">利用JSON.stringify实现对数组和对象的深拷贝</h2>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">{</span> <span class="na">value</span><span class="p">:</span> <span class="mi">5</span> <span class="p">}];</span>
+<span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">arr</span><span class="p">));</span>
+<span class="nx">arr</span><span class="p">[</span><span class="mi">4</span><span class="p">].</span><span class="nx">value</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr1</span><span class="p">);</span> <span class="c1">//[1, 2, 3, 4, { value: 5 }]</span>
+
+<span class="kd">var</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">mei</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">address</span><span class="p">:</span> <span class="p">{</span><span class="na">city</span><span class="p">:</span> <span class="dl">"</span><span class="s2">shanghai</span><span class="dl">"</span><span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">obj1</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">obj</span><span class="p">));</span>
+<span class="nx">obj</span><span class="p">.</span><span class="nx">address</span><span class="p">.</span><span class="nx">city</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">beijing</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">obj1</span><span class="p">);</span> <span class="c1">//{name: "mei", address:{city: "shanghai"}</span>
+</code></pre></div></div>
+<p>该方法不能对<code class="language-plaintext highlighter-rouge">undefined</code> <code class="language-plaintext highlighter-rouge">symbol</code> <code class="language-plaintext highlighter-rouge">函数</code> 进行深度拷贝。</p>
+
+<h2 id="利用递归实现数组和对象深拷贝">利用递归实现数组和对象深拷贝</h2>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">deepCopy</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">obj</span> <span class="o">!==</span> <span class="dl">'</span><span class="s1">object</span><span class="dl">'</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">newObj</span> <span class="o">=</span> <span class="nx">obj</span> <span class="k">instanceof</span> <span class="nb">Array</span> <span class="p">?</span> <span class="p">[]</span> <span class="p">:</span> <span class="p">{};</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">newObj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="k">typeof</span> <span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">object</span><span class="dl">'</span> <span class="p">?</span> <span class="nx">deepCopy</span><span class="p">(</span><span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span> <span class="p">:</span> <span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">newObj</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p>我们来验证下：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">{</span> <span class="na">value</span><span class="p">:</span> <span class="mi">5</span> <span class="p">}];</span>
+<span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="nx">deepCopy</span><span class="p">(</span><span class="nx">arr</span><span class="p">);</span>
+<span class="nx">arr</span><span class="p">[</span><span class="mi">4</span><span class="p">].</span><span class="nx">value</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr</span><span class="p">);</span><span class="c1">//1, 2, 3, 4, { value: 6 }]</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr2</span><span class="p">);</span><span class="c1">//1, 2, 3, 4, { value: 5 }]</span>
+</code></pre></div></div>
+<p>对于数组和对象的浅拷贝，去掉递归就可以了：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">shallowCopy</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">obj</span> <span class="o">!==</span> <span class="dl">'</span><span class="s1">object</span><span class="dl">'</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">newObj</span> <span class="o">=</span> <span class="nx">obj</span> <span class="k">instanceof</span> <span class="nb">Array</span> <span class="p">?</span> <span class="p">[]</span> <span class="p">:</span> <span class="p">{};</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">obj</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">newObj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">newObj</span><span class="p">;</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+<p>验证一下：</p>
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">{</span> <span class="na">value</span><span class="p">:</span> <span class="mi">5</span> <span class="p">}];</span>
+<span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="nx">shallowCopy</span><span class="p">(</span><span class="nx">arr</span><span class="p">);</span>
+<span class="nx">arr</span><span class="p">[</span><span class="mi">4</span><span class="p">].</span><span class="nx">value</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr</span><span class="p">);</span><span class="c1">//1, 2, 3, 4, { value: 6 }]</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">arr2</span><span class="p">);</span><span class="c1">//1, 2, 3, 4, { value: 6 }]</span>
+</code></pre></div></div>
+:ET

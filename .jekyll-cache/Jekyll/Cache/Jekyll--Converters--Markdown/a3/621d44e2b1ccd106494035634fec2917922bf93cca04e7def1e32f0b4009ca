@@ -1,0 +1,256 @@
+I"�k<p>在这篇文章中会介绍以下内容：</p>
+
+<ul>
+  <li>
+    <p>什么是 Tree Shaking，以及它对性能的影响。</p>
+  </li>
+  <li>
+    <p>如何让 Angular(6.0+) 的 Service 实现 Tree Shaking。</p>
+  </li>
+  <li>
+    <p>在 webpack4 的项目中，怎么实现 Tree Shaking。</p>
+  </li>
+</ul>
+
+<p>在文章【<a href="https://limeii.github.io/2019/08/angular-customize-webpack/">Angular：如何在Angular(8.0)中配置Webpack</a>】提到了 Angular 内置的编译打包方式会执行 Tree Shaking，可以提高 Angular 应用的性能。那我们先看下什么是 Tree Shaking。</p>
+
+<h2 id="tree-shaking">Tree Shaking</h2>
+
+<p>Tree Shaking 是指在编译打包过程中，会把那些定义好的代码但是又没有被调用的代码去掉，不把这些没用到的代码打包到最后的 bundle 文件里，从而可以减小 bundle 文件的体积，提高应用性能。可以把整个应用想象成一棵树，function/component/service/lib 好比是树叶，而那些定义但又没有被调用的 function/component/service/lib 好比是枯树叶，Tree Shaking 就是把那些枯树叶从树上摇下去。</p>
+
+<p>Angular 内置的打包方式在<code class="language-plaintext highlighter-rouge">ng build --prod</code>会启用 Tree Shaking，在<code class="language-plaintext highlighter-rouge">ng build</code>开发模式下编译不会用 Tree Shaking。我们可以对比 Angular 项目的开发和生产编译结果，来看看 Tree Shaking 的效果，具体代码可以在【<a href="https://github.com/LiMeii/angular-performance">angular-performance</a>】查看。</p>
+
+<p>首先定义一个 typescript 的 module，export 两个 function：square，cube；具体代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// common-utility.ts</span>
+<span class="k">export</span> <span class="kd">function</span> <span class="nx">square</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is square function in commonutility</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">export</span> <span class="kd">function</span> <span class="nx">cube</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is cube function in commonutility</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>然后在 DashboardComponent 中只引用 cube 方法：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//dashboard.module.ts</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Component</span><span class="p">,</span> <span class="nx">OnInit</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">cube</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../../shared/common-utility</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+    <span class="na">templateUrl</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./dashboard.component.html</span><span class="dl">"</span>
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">DashboardComponent</span> <span class="k">implements</span> <span class="nx">OnInit</span> <span class="p">{</span>
+    <span class="nx">ngOnInit</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">here is the cube result </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">cube</span><span class="p">(</span><span class="mi">3</span><span class="p">));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>用<code class="language-plaintext highlighter-rouge">ng serve</code>把项目跑起来以后，在 console 里会有以下的输出：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>this is cube function in commonutility
+dashboard.component.ts:12 here is the cube result 27
+</code></pre></div></div>
+
+<p>之前说过在<code class="language-plaintext highlighter-rouge">ng build</code>开发模式下编译不会用 Tree Shaking，所以编译以后的 bundle 文件里会有<code class="language-plaintext highlighter-rouge">square</code>方法的源码，我们<code class="language-plaintext highlighter-rouge">ng build</code>编译代码看下结果：</p>
+
+<p>在编译后的 bunlde 文件：modules-dashboard-dashboard-module-es5.js 里，我们能看到如下代码，没有 Tree Shaking，<code class="language-plaintext highlighter-rouge">square(x)</code>方法在整个项目里都没有被调用，但是编译打包的时候，还是把整个方法放进了最后的 bundle 文件里，在 bundle 文件的相关代码如下：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/***/</span> <span class="dl">"</span><span class="s2">./src/app/shared/common-utility.ts</span><span class="dl">"</span><span class="p">:</span>
+<span class="cm">/*!******************************************!*\
+  !*** ./src/app/shared/common-utility.ts ***!
+  \******************************************/</span>
+<span class="cm">/*! exports provided: square, cube */</span>
+<span class="cm">/***/</span> <span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">module</span><span class="p">,</span> <span class="nx">__webpack_exports__</span><span class="p">,</span> <span class="nx">__webpack_require__</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="dl">"</span><span class="s2">use strict</span><span class="dl">"</span><span class="p">;</span>
+<span class="nx">__webpack_require__</span><span class="p">.</span><span class="nx">r</span><span class="p">(</span><span class="nx">__webpack_exports__</span><span class="p">);</span>
+<span class="cm">/* harmony export (binding) */</span> <span class="nx">__webpack_require__</span><span class="p">.</span><span class="nx">d</span><span class="p">(</span><span class="nx">__webpack_exports__</span><span class="p">,</span> <span class="dl">"</span><span class="s2">square</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">square</span><span class="p">;</span> <span class="p">});</span>
+<span class="cm">/* harmony export (binding) */</span> <span class="nx">__webpack_require__</span><span class="p">.</span><span class="nx">d</span><span class="p">(</span><span class="nx">__webpack_exports__</span><span class="p">,</span> <span class="dl">"</span><span class="s2">cube</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">cube</span><span class="p">;</span> <span class="p">});</span>
+<span class="kd">function</span> <span class="nx">square</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is square function in commonutility</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">cube</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is cube function in commonutility</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/***/</span> <span class="p">})</span>
+</code></pre></div></div>
+
+<p>我们再来试一下<code class="language-plaintext highlighter-rouge">ng build --prod</code>启用 Tree Shaking，因为<code class="language-plaintext highlighter-rouge">ng build --prod</code>不仅会做 Tree Shaking 还会做 Minification 和 Uglification，所以最后的编译代码都是被处理过的。不能直观的看代码，但是在<code class="language-plaintext highlighter-rouge">square</code>和<code class="language-plaintext highlighter-rouge">cube</code>里都有 console log，我们可以通过在最后编译 bundle 文件：3-es5.55d98a7c1ad4d4f5ce12.js 里用关键字‘commonutility’来搜索查看。结果如下：</p>
+
+<p><img src="https://limeii.github.io/assets/images/posts/angular/angular-tree-shaking01.png" alt="angular-tree-shaking" height="100%" width="100%" /></p>
+
+<p>“this is square function in commonutility”并没有在最后的 bundle 文件里，说明启用 Tree Shaking 之后不会把 square 打包进最后的 bundle 文件里。</p>
+
+<h2 id="如何让-angular60-的-service-实现-tree-shaking">如何让 Angular(6.0+) 的 Service 实现 Tree Shaking</h2>
+
+<p>Angular6 发布了一项新功能：Tree Shakeable Providers，这个新的功能是用来让 Angular 中的 service 也可以 Tree Shaking。在此之前，Angular 中的 service 都是依赖注入的，service 都是通过 @Injectable 装饰器定义，比如定义一个 AService 如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Injectable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Injectable</span><span class="p">()</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">AService</span> <span class="p">{</span>
+    <span class="kd">constructor</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is Aservice, no matter using or not, Aservice will awalys be bundled.</span><span class="dl">"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>在 component/module 里引用 service 都需要先 import 然后再 providers 元数据里加上对应的 service，比如在 AppModule 引入 AService 的写法如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">......</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">AService</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./shared/service/a.service</span><span class="dl">"</span>
+
+<span class="p">@</span><span class="nd">NgModule</span><span class="p">({</span>
+  <span class="p">.....</span>
+  <span class="na">providers</span><span class="p">:</span> <span class="p">[</span><span class="nx">AService</span><span class="p">],</span>
+  <span class="na">bootstrap</span><span class="p">:</span> <span class="p">[</span><span class="nx">AppComponent</span><span class="p">]</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">AppModule</span> <span class="p">{</span> <span class="p">}</span>
+</code></pre></div></div>
+
+<p>Angular 在编译的时候，因为已经有<code class="language-plaintext highlighter-rouge">import { AService }</code>语句，那么不管这个 AService 有没有被调用，对 Angular 来说并不好区分 AService 是否被真正调用，所以不管是否调用，最后 AService 都会被打包进 bundle 文件，没办法做 Tree Shaking。</p>
+
+<p>Angular6.0 发布的新功能：Tree Shakeable Providers，就是用来解决这个问题，通过<code class="language-plaintext highlighter-rouge">providedIn</code>元数据选项定义该 service 是用在哪个 module 里，然后在对应的 module 里就不需要显示<code class="language-plaintext highlighter-rouge">import { ServiceName }</code>，没有 import 语句以后，那么 Angular 在编译的时候就很很容易判断 service 到底有没有被调用，从而可以很容易实现对 service 做 Tree Shaking。我们具体来看看代码示例：</p>
+
+<p>定义一个 BService，<code class="language-plaintext highlighter-rouge">providedIn: "root"</code>表示 BService 用在了 root module（AppModule），然后在 AppComponent 调用 BService，代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//BService</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Injectable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Injectable</span><span class="p">({</span>
+    <span class="na">providedIn</span><span class="p">:</span> <span class="dl">"</span><span class="s2">root</span><span class="dl">"</span>
+<span class="p">})</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">BService</span> <span class="p">{</span>
+    <span class="kd">constructor</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is Bservice, there has one component using this, so Bservice will be bundled</span><span class="dl">"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//AppComponent</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Component</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> <span class="nx">BService</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./shared/service/b.service</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Component</span><span class="p">({</span>
+  <span class="na">selector</span><span class="p">:</span> <span class="dl">"</span><span class="s2">app-root</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">templateUrl</span><span class="p">:</span> <span class="dl">"</span><span class="s2">./app.component.html</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">styleUrls</span><span class="p">:</span> <span class="p">[</span><span class="dl">"</span><span class="s2">./app.component.css</span><span class="dl">"</span><span class="p">]</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">AppComponent</span> <span class="p">{</span>
+  <span class="nx">title</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">angular-performance</span><span class="dl">"</span><span class="p">;</span>
+  <span class="kd">constructor</span><span class="p">(</span><span class="k">private</span> <span class="nx">bService</span><span class="p">:</span> <span class="nx">BService</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>为了对比，我们在定义一个 CService，<code class="language-plaintext highlighter-rouge">providedIn: "root"</code>表示 CService 用在了 root module（AppModule），但是不再任何地方调用 CService，代码如下：</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Injectable</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@angular/core</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="p">@</span><span class="nd">Injectable</span><span class="p">({</span>
+    <span class="na">providedIn</span><span class="p">:</span> <span class="dl">"</span><span class="s2">root</span><span class="dl">"</span>
+<span class="p">})</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">CService</span> <span class="p">{</span>
+    <span class="kd">constructor</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is Cservice, there has no component using this, so Cservice won't be bundled.</span><span class="dl">"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>再用<code class="language-plaintext highlighter-rouge">ng build --prod</code>编译打包，service 文件会打包到<code class="language-plaintext highlighter-rouge">main-es5.396328bc020fc5aa2168.js</code>bundle 文件里，同样通过关键字搜索的方式来看下结果：</p>
+
+<p>搜索：AService，可以看到 AService 没有用<code class="language-plaintext highlighter-rouge">providedIn: "root"</code>，而且没有被调用，有 Tree Shaking，但是因为在 AppModule 有<code class="language-plaintext highlighter-rouge">import { AService }</code>，不管是否被调用都会打包进最后的 bundle 文件。
+<img src="https://limeii.github.io/assets/images/posts/angular/angular-tree-shaking02.png" alt="angular-tree-shaking" height="100%" width="100%" /></p>
+
+<p>搜索：BService，可以看到 BService 用<code class="language-plaintext highlighter-rouge">providedIn: "root"</code>，在 AppModule 不需要<code class="language-plaintext highlighter-rouge">import { BService }</code>，并且在 AppComponent 里调用，有 Tree Shaking，会被打包进最后的 bundle 文件。
+<img src="https://limeii.github.io/assets/images/posts/angular/angular-tree-shaking03.png" alt="angular-tree-shaking" height="100%" width="100%" /></p>
+
+<p>搜索：CService，可以看到 CService 用<code class="language-plaintext highlighter-rouge">providedIn: "root"</code>，在 AppModule 不需要<code class="language-plaintext highlighter-rouge">import { CService }</code>，但是没有被调用，有 Tree Shaking，不会被打包进最后的 bundle 文件。 
+<img src="https://limeii.github.io/assets/images/posts/angular/angular-tree-shaking04.png" alt="angular-tree-shaking" height="100%" width="100%" /></p>
+
+<h2 id="在-webpack4-的项目中怎么实现-tree-shaking">在 webpack4 的项目中，怎么实现 Tree Shaking</h2>
+
+<p>如果不用 Angular 内置的打包方式做 Tree Shaking，那么在 webpack4 怎么实现 Tree Shaking？在 webpack 官方文档：【<a href="https://webpack.js.org/guides/tree-shaking/">Webpack Tree Shaking</a>】有介绍结合 <code class="language-plaintext highlighter-rouge">"sideEffects": false</code>和 <code class="language-plaintext highlighter-rouge">mode: "production"</code>实现 Tree Shaking，我尝试用当前最新的 webpack 版本：<code class="language-plaintext highlighter-rouge">webpack@4.39.2</code>搭了一个项目，尝试在 webpack4 中使用 Tree Shaking，发现跟官方文档介绍还是有点出入。</p>
+
+<p>首先用<code class="language-plaintext highlighter-rouge">npm init</code>初始化了一个项目，源码在这里：【<a href="https://github.com/LiMeii/webpack4-practice">webpack4-practice</a>】，然后安装 webpack/webpack-cli 等等包。配置好 webpack config 文件。具体如下：</p>
+
+<p>【<a href="https://github.com/LiMeii/webpack4-practice/blob/master/config/webpack.common.config.js">webpack4-practice/config/webpack.common.config.js</a>】</p>
+
+<p>【<a href="https://github.com/LiMeii/webpack4-practice/blob/master/config/webpack.dev.config.js">webpack4-practice/config/webpack.dev.config.js</a>】</p>
+
+<p>【<a href="https://github.com/LiMeii/webpack4-practice/blob/master/config/webpack.prod.config.js">webpack4-practice/config/webpack.prod.config.js</a>】</p>
+
+<p>在根目录下，创建如下文件：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>|----scr
+      |----index.html
+      |----main.js
+      |----shared
+           |----common-utility.js
+
+</code></pre></div></div>
+
+<p>common-utility.js 代码如下：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">function</span> <span class="nx">square</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is square function in commonutility</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="kd">function</span> <span class="nx">cube</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">this is cube function in commonutility</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">x</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>在 main.js 中调用 cube 方法，具体代码如下：</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">cube</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./shared/common-utility</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">the result for cube(5) is </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">cube</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span>
+</code></pre></div></div>
+<blockquote>
+<p>
+此时并没有按官方文档介绍的那样在 package.json 文件中设置"sideEffects": false。只是对 dev 和 prod 的 mode 分别设置 mode:"development" 和 mode:"production"。
+</p>
+</blockquote>
+
+<p>运行<code class="language-plaintext highlighter-rouge">npm run build:dev</code>，在打包出来的 bundle 文件：main.07bdac8643ee4eaf7a5d.js 中可以看到<code class="language-plaintext highlighter-rouge">square</code>方法虽然没有调用，但还是被打包进来了，说明<code class="language-plaintext highlighter-rouge">mode:"development"</code>模式下不会 Tree Shaking，</p>
+
+<p>运行<code class="language-plaintext highlighter-rouge">npm run build:prod</code>，在打包出来的 bundle 文件：main.a60a09c27b85b5bcc81f.js 中只能看到<code class="language-plaintext highlighter-rouge">cube</code>方法被打包，说明<code class="language-plaintext highlighter-rouge">mode:"production"</code>模式下，webpack4 默认做 Tree Shaking。</p>
+
+<p>接着按官方文档的介绍，在 package.json 文件中设置 sideEffects：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"webpack4-practice"</span><span class="err">,</span><span class="w">
+</span><span class="nl">"sideEffects"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></code></pre></div></div>
+<p>或者是：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"webpack4-practice"</span><span class="err">,</span><span class="w">
+  </span><span class="nl">"sideEffects"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"./src/shared/common-utility.js"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<p>最后编译的结果跟上面不用 sideEffects 的效果一模一样，说明至少在<code class="language-plaintext highlighter-rouge">webpack@4.39.2</code>版本中，只要设置了<code class="language-plaintext highlighter-rouge">mode:"production"</code>模式就可以执行 Tree Shaking，跟<code class="language-plaintext highlighter-rouge">sideEffects</code>没什么关系。</p>
+
+<blockquote>
+<p>
+需要注意的是，Webpack 内置的 Tree Shaking 只对 ES6 module 语法有用，对那些用 Babel 把 ES6 modules 编译成 CommonJS modules 不起作用。
+</p>
+</blockquote>
+
+<h2 id="其他-tree-shaking-工具">其他 Tree Shaking 工具</h2>
+
+<ul>
+  <li><a href="https://github.com/rollup/rollup">Rollup</a></li>
+  <li><a href="https://github.com/google/closure-compiler">Google Closure Compiler</a></li>
+</ul>
+:ET

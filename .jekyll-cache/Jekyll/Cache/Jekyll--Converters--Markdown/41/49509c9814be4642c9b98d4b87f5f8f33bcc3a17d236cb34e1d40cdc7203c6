@@ -1,0 +1,8 @@
+I"�<p>Angular 中每个 component/directive 都有它自己的生命周期。包括创建组件，渲染组件，创建渲染子组件，检测绑定属性变化，回收和从 DOM 中移除。</p>
+<blockquote>
+<p>
+生命周期有这几种：OnChanges，OnInit，DoCheck，AfterContentInit，AfterContentChecked，AfterViewInit，AfterViewChecked，OnDestroy。
+</p>
+<p>钩子函数就是在对应的生命周期前面加上前缀 ng，比如 OnInit，对应的钩子函数是 ngOnInit()。</p>
+</blockquote>
+:ET

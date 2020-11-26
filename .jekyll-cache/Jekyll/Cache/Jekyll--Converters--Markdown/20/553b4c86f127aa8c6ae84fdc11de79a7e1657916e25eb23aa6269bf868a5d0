@@ -1,0 +1,2 @@
+I"0<p>在文章【<a href="https://limeii.github.io/2019/05/js-eventloop/">JS：详解Event Loop运行机制，以及microtasks和macrotask的执行顺序</a>】这篇文章中简单介绍了Call Stack（调用栈），在JS中所有代码都是在调用栈中执行的，遵循后进先出的原则。</p>
+:ET

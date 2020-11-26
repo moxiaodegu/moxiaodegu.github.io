@@ -1,0 +1,6 @@
+I"�<blockquote>
+<p>
+Angular 中的变化检测机制是当 component 状态有变化的时候，Angular 都能检测到这些变化，并且能够将这些变化反应到页面上。
+</p>
+</blockquote>
+:ET
