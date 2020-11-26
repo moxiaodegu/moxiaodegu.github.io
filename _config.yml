@@ -31,7 +31,7 @@ git:
 destination: _site
 paginate: 10
 permalink: /:year/:title/
-markdown: kramdown
+kramdown: kramdown
 highlighter: rouge
 
 sass:
