@@ -11,7 +11,7 @@ baseurl: '/'
 author:
   name: 蘑小De菇
   email: moxiaodegu@163.com
-  twitter_username: moxiaodegu
+  # twitter_username: moxiaodegu
   # facebook_username: joshgerdes
   github_username:  moxiaodegu
   # linkedin_username:  joshgerdes
