@@ -1,6 +1,6 @@
 ---
-layout: tags
-title: Tags
-permalink: /tags/
-robots: noindex
+title: 
+tags: blog 
+layout: post
 ---
+
