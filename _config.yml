@@ -2,6 +2,7 @@
 title: 蘑小De菇
 subtitle: 个人技术博客
 description: hi，我是蘑小De菇，一名前端开发者。
+welcome_message: 记录个人对技术的理解和开发过程中遇到的问题，欢迎了解更多。
 url: https://moxiaodegu.github.io/#blog
 baseurl: '/'
 # google_analytics: 'UA-XXXXXX-X'
