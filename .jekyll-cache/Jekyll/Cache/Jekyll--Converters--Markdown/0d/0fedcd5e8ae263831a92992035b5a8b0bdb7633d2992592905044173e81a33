@@ -1,0 +1,36 @@
+I"�<p>个人搭建博客总结</p>
+
+<p><strong>1.创建一个github仓库</strong></p>
+
+<ul>
+  <li>如何创建-&gt;<a href="https://docs.github.com/cn/free-pro-team@latest/github/getting-started-with-github/create-a-repo">新手传送门</a></li>
+  <li>仓库名设置为 username.github.io，其中 username 就是你的 github 用户名。</li>
+</ul>
+
+<p><strong>2.找一个jekyll模板</strong></p>
+<ul>
+  <li>我用的是这个网站：http://jekyllthemes.org/</li>
+  <li>复制到上一步的仓库里</li>
+  <li>现在访问 https://username.github.io/, 应该可以看到了</li>
+</ul>
+
+<p><strong>3.下载ruby</strong></p>
+<ul>
+  <li>http://www.ruby-lang.org/zh_cn/ 找到对应的安装包下载安装就OK</li>
+</ul>
+
+<p><strong>3.下载jekyll</strong></p>
+<ul>
+  <li>打开cmd，输入：<code class="language-plaintext highlighter-rouge">gem install jekyll</code></li>
+</ul>
+
+<p><strong>4.下载bundle</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">gem install bundler</code></li>
+</ul>
+
+<p><strong>5.克隆远程仓库代码到本地</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">git clone ...</code></li>
+</ul>
+:ET
