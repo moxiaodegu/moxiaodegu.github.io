@@ -34,9 +34,11 @@ layout: post
  - 启动项目 ```jekyll s```
  - 一般情况下输入 http://localhost:4000 或 http://127.0.0.1:4000 就可以访问了
  - 如果报错 可能是需要更新Gemfile.lock ```bundle update```,再次启动，就可以啦
+
  **7.修改_config.yml**
  - 把_config.yml里面的信息修改为自己的即可
  - 也可以自己更改成自己喜欢的风格，本地查看满意之后，就可以提交到git仓库啦
+ 
  **8.提交代码**
  - 可以用git命令提交，再次刷新https://username.github.io/，就看到你的博克啦（可能有延时）
  - 也可以用[GitHub Desktop](https://desktop.github.com/)提交
