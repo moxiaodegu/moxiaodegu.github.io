@@ -1,4 +1,4 @@
-I"�<p>总结一些常用的命令。</p>
+I"�<p>总结一些常用的命令。</p>
 
 <p><strong>Windows</strong></p>
 
@@ -22,7 +22,7 @@
 <p><strong>GIT</strong></p>
 
 <ul>
-  <li>克隆和下载项目： git clone  </li>
+  <li>克隆和下载项目： git clone  https://github.com//angular-seed-project.git</li>
   <li>提交代码： git push -u origin master / git push</li>
   <li>设置用户名密码： git config –global user.name “Your Name”</li>
   <li>设置用户邮箱： git config –global user.email you@example.com</li>

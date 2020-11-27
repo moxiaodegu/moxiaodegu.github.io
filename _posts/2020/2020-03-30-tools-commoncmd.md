@@ -29,7 +29,7 @@ layout: post
 **GIT**
 
 
-- 克隆和下载项目： git clone  https://github.com/LiMeii/angular-seed-project.git
+- 克隆和下载项目： git clone 
 - 提交代码： git push -u origin master / git push
 - 设置用户名密码： git config --global user.name "Your Name" 
 - 设置用户邮箱： git config --global user.email you@example.com
