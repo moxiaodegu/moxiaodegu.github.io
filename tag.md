@@ -1,5 +1,5 @@
 ---
-title: 文章目录
+title: 目录
 tags: blog
 layout: post
 ---
