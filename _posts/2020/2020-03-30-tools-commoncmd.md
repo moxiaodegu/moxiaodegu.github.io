@@ -33,7 +33,7 @@ layout: post
 - 提交代码： git push -u origin master / git push
 - 设置用户名密码： git config --global user.name "Your Name" 
 - 设置用户邮箱： git config --global user.email you@example.com
-- SSL Certificate problem: unable to get local issuer certificate： 解决方案 git config --global http.sslVerify false
+- 设置SSH：生成：ssh-keygen -o  查看：cat ~/.ssh/id_rsa.pub
 - 到上一层目录：cd..
 - 到其他硬盘(比如D)：d:
 - 查看文件列表: ls
