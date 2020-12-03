@@ -75,7 +75,7 @@ layout: post
 - 查看文件内容：cat 文件名
 - 删除文件/文件夹：rm 文件名
 - 创建文件夹：mkdir 文件夹名
-
+- 关联github仓库： 在github中新建一个repository，复制仓库地址：git remote add origin https://github.com/CongliYin/CSS.git
 
 **Jekyll / Ruby**
 
