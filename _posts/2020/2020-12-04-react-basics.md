@@ -1,3 +1,10 @@
+---
+title: React核心概念
+tags: React
+layout: post
+---
+
+
 **jsx**
 
 react没有采用逻辑和标记语言分离到不同文件，而是采用二者共同存放在组件中
