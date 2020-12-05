@@ -53,8 +53,25 @@ react元素是不可变对象，一旦创建就无法更改。更新ui的唯一�
 react会将元素和上次的元素进行对比，只会进行必要的更新
 
 **组件&props**
+> 注意：
+> 1. <strong>组件名首字母必须大写，</strong>react会将首字母小写的组件名当成dom标签处理 
+> 2. 组件内的props不可修改
 
- - 
+ - 函数组件
+    ```javascript
+    function Welcome(props) {
+        return <h1>Hello, {props.name}</h1>;
+    }
+    ```
+ - class组件
+    ```javascript
+    class Welcome extends React.Component {
+        render() {
+            return <h1>Hello, {this.props.name}</h1>;
+        }
+    }
+    ```
+**state&生命周期**
 
 
 
