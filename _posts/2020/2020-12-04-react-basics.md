@@ -72,10 +72,33 @@ react会将元素和上次的元素进行对比，只会进行必要的更新
     }
     ```
 **state&生命周期**
+
 > state是私有的，并完全受控于当前组件
 
+```javascript
+this.setState({
+    value: 2
+})
+```
+- 直接修改state不会重新渲染页面，需要通过**setState**修改
+- state更新可能是异步的，react处于性能的考虑，可能会将多个setState合并为一个。解决办法是setState接收一个函数，而不是一个对象
+
+    ```javascript
+    this.setState((state,props)=>{
+        value: state.value
+    })
+    ```
+- state的更新会被合并
 
 
 
+**事件处理**
+```
+<button onClick={activateLasers}>
+    Activate Lasers
+</button>
+```
+- react 不能通过```return false```阻止默认事件，需要通过```e.preventDefault() ```阻止
 
+- jsx中回调函数的`this`
 
