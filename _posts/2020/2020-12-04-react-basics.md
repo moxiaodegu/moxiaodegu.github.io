@@ -131,4 +131,23 @@ ReactDOM.render(
   document.getElementById('root')
 );
 ```
-- key帮助react识别哪些元素变了
+- key帮助react识别哪些元素变了，key只有放到就近的上下文中才有意义
+
+- key只在兄弟节点必须唯一
+
+- key的值只会传给react，不会传给组件，下面的例子，props.id可以读到，props.key读不到
+
+- jsx中，{} 可以嵌入js代码，所以也可以在jsx中内联map返回列表
+
+
+**表单**
+
+- 受控组件
+    > state成为组件唯一数据源，并控制用户输入表单发生的操作，为受控组件
+- 非受控组件
+    > 不受state控制
+
+
+**状态提升**
+
+ - 两个组件共享数据，把共享状态提升到父级组件去。
