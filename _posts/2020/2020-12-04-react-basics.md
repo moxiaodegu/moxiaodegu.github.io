@@ -34,6 +34,8 @@ layout: post
 
 - react dom 使用小驼峰命名
 
+- jsx中使用 `{}` 包裹代码,可嵌入js表达式
+
 - <strong>jsx防止xss攻击</strong>，react dom 在渲染输入内容时，会自动做转义
  
 **元素渲染**
@@ -101,4 +103,8 @@ this.setState({
 - react 不能通过```return false```阻止默认事件，需要通过```e.preventDefault() ```阻止
 
 - jsx中回调函数的`this`
+
+
+**条件渲染**
+
 
