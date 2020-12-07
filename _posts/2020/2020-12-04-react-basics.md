@@ -107,4 +107,28 @@ this.setState({
 
 **条件渲染**
 
+ - 可通过条件判断返回对应的jsx代码
 
+ - 阻止组件渲染，可以让render方法返回null
+
+ **别表 & key**
+```javascript
+function NumberList(props) {
+  const numbers = props.numbers;
+  const listItems = numbers.map((number) =>
+    <li key={number.toString()}>
+      {number}
+    </li>
+  );
+  return (
+    <ul>{listItems}</ul>
+  );
+}
+
+const numbers = [1, 2, 3, 4, 5];
+ReactDOM.render(
+  <NumberList numbers={numbers} />,
+  document.getElementById('root')
+);
+```
+- key帮助react识别哪些元素变了
