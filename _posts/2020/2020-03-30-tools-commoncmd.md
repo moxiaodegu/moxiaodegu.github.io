@@ -16,6 +16,7 @@ layout: post
 - 查看当前目录下面所有的目录和文件： dir
 - 查看当前目录下面所有的目录和文件，并且按顺序显示： dir /o
 - 创建新目录： mkdir 或者 md folder
+- host文件路径：C:\Windows\System32\drivers\etc
 
 
 **Terminal**
