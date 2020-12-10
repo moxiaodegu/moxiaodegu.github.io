@@ -35,6 +35,7 @@ layout: post
 - 设置用户名密码： git config --global user.name "Your Name" 
 - 设置用户邮箱： git config --global user.email you@example.com
 - 设置SSH：生成：ssh-keygen -o  查看：cat ~/.ssh/id_rsa.pub
+- 撤回上一次commit： git reset --soft HEAD^
 - 到上一层目录：cd..
 - 到其他硬盘(比如D)：d:
 - 查看文件列表: ls
