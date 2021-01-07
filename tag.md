@@ -5,6 +5,7 @@ layout: post
 ---
 
 **JavaScript**
+- [let、const和var的区别](https://moxiaodegu.github.io/2021/01/let-var/)
 - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
 
 **React**
