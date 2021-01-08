@@ -19,14 +19,6 @@ layout: post
 - host文件路径：C:\Windows\System32\drivers\etc
 
 
-**Terminal**
-
-
-- 删除文件夹：rm -rf folderName 或者 sudo rm -rf folderName
-- 查看node装在哪里： ls -la $(which node)
-- 查看当前目录下面所有的目录和文件： ls
-
-
 **GIT**
 
 
@@ -35,16 +27,10 @@ layout: post
 - 设置用户名密码： git config --global user.name "Your Name" 
 - 设置用户邮箱： git config --global user.email you@example.com
 - 设置SSH：生成：ssh-keygen -o  查看：cat ~/.ssh/id_rsa.pub
-- 撤回上一次commit： git reset --soft HEAD^
-- 到上一层目录：cd..
 - 到其他硬盘(比如D)：d:
-- 查看文件列表: ls
 - 查看隐藏文件：ls -al
 - 查看Git状态：git status / git status -s
 - 查看Git提交历史：git log
-- 添加所有改动文件到暂存区（工作区到暂存区）：git add .
-- 添加某个改动文件到暂存区（工作区到暂存区）：git add 文件名
-- 提交改动文件到版本库（从暂存区到版本库）：git commit -m "comments"
 - 提交改动文件到版本库（直接从工作区到版本库）：git commit -a -m "comments"
 - 工作区和暂存区比较：git diff
 - 工作区和版本库比较：git diff 分支名
@@ -78,6 +64,7 @@ layout: post
 - 删除文件/文件夹：rm 文件名
 - 创建文件夹：mkdir 文件夹名
 - 关联github仓库： 在github中新建一个repository，复制仓库地址：git remote add origin https://github.com/CongliYin/CSS.git
+
 
 **Jekyll / Ruby**
 
