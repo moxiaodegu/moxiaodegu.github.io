@@ -1,5 +1,5 @@
 ---
-title: React核心概念
+title: React入门基础概念
 tags: React
 layout: post
 ---
