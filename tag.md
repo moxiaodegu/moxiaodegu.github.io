@@ -9,7 +9,7 @@ layout: post
 - 语言基础
   - [let、const和var的区别](https://moxiaodegu.github.io/2021/01/let-var/)
   - [数据类型](https://moxiaodegu.github.io/2021/03/dataType/)
-  - [script元素](https://moxiaodegu.github.io/2021/04/script/)
+  - [script标签](https://moxiaodegu.github.io/2021/04/script/)
   
 - 编译执行
   - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
