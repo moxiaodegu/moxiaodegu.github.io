@@ -1,3 +1,11 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: mayanli
+ * @Date: 2020-12-03 19:21:34
+ * @LastEditors: mayanli
+ * @LastEditTime: 2021-06-10 20:26:02
+-->
 ---
 title: 常用的一些命令行
 tags: 工具
@@ -75,6 +83,10 @@ layout: post
 
 
     
+**vscode**
 
+picgo
+- ctrl+alt+u：从剪贴板插入图片
+- ctrl+alt+e：手动选择要插入的图片
 
 
