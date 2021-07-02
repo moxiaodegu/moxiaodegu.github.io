@@ -35,6 +35,7 @@ layout: post
 
 5. 原始值保存在栈内存中，
 6. 原始值复制是值得复制，不存在深浅拷贝问题
+
    ![20210702131512](https://cdn.jsdelivr.net/gh/moxiaodegu/ImageHosting/imagesBlogs/20210702131512.png)
 7. 函数传参原始值和原始值变量复制一致
 
