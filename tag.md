@@ -8,9 +8,13 @@ layout: post
 
 - 语言基础
   - [script标签](https://moxiaodegu.github.io/2021/04/script/)
+  - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
   - [let、const和var的区别](https://moxiaodegu.github.io/2021/01/let-var/)
+  
+- 数据类型
   - [数据类型有哪些](https://moxiaodegu.github.io/2021/03/dataType/)
-  - [数据类型判断的几种方法](https://moxiaodegu.github.io/2021/01/data-type-judgment/)
+  - [基本类型和引用类型有哪些不同](https://moxiaodegu.github.io/2021/01/make-difference/)
+  - [判断数据类型的几种方法](https://moxiaodegu.github.io/2021/01/data-type-judgment/)
 
 - 编译执行
   - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
