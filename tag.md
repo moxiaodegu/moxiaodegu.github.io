@@ -7,10 +7,11 @@ layout: post
 **JavaScript**
 
 - 语言基础
-  - [let、const和var的区别](https://moxiaodegu.github.io/2021/01/let-var/)
-  - [数据类型](https://moxiaodegu.github.io/2021/03/dataType/)
   - [script标签](https://moxiaodegu.github.io/2021/04/script/)
-  
+  - [let、const和var的区别](https://moxiaodegu.github.io/2021/01/let-var/)
+  - [数据类型有哪些](https://moxiaodegu.github.io/2021/03/dataType/)
+  - [数据类型判断的几种方法](https://moxiaodegu.github.io/2021/01/data-type-judgment/)
+
 - 编译执行
   - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
   - [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
