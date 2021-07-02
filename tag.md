@@ -9,6 +9,7 @@ layout: post
 - 语言基础
   - [script标签](https://moxiaodegu.github.io/2021/04/script/)
   - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
+  - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
   - [let、const和var的区别](https://moxiaodegu.github.io/2021/01/let-var/)
   
 - 数据类型
