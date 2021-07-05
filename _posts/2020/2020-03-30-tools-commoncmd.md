@@ -1,11 +1,3 @@
-<!--
- * @Descripttion: 
- * @version: 
- * @Author: mayanli
- * @Date: 2020-12-03 19:21:34
- * @LastEditors: mayanli
- * @LastEditTime: 2021-06-10 20:26:02
--->
 ---
 title: 常用的一些命令行
 tags: 工具
@@ -17,7 +9,6 @@ layout: post
 
 **Windows**
 
-
 - 回到跟目录：cd\
 - 到上一层目录：cd..
 - 到其他硬盘(比如D)：d:
@@ -26,9 +17,7 @@ layout: post
 - 创建新目录： mkdir 或者 md folder
 - host文件路径：C:\Windows\System32\drivers\etc
 
-
 **GIT**
-
 
 - 克隆和下载项目： git clone 
 - 提交代码： git push -u origin master / git push
@@ -73,20 +62,13 @@ layout: post
 - 创建文件夹：mkdir 文件夹名
 - 关联github仓库： 在github中新建一个repository，复制仓库地址：git remote add origin https://github.com/CongliYin/CSS.git
 
-
 **Jekyll / Ruby**
-
 
 - 在windows本地启动项目：bundle exec jekyll server
 - 在mac本地启动项目： jekyll server
 - gem安装某版本的package: gem install rails -v 0.14.1 / gem install rails --version 0.14.1 
 
-
-    
 **vscode**
 
-picgo
 - ctrl+alt+u：从剪贴板插入图片
 - ctrl+alt+e：手动选择要插入的图片
-
-
