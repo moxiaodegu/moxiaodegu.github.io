@@ -17,6 +17,7 @@ layout: post
   - [基本类型和引用类型有哪些不同](https://moxiaodegu.github.io/2020/01/make-difference/)
   - [判断数据类型的几种方法](https://moxiaodegu.github.io/2020/01/data-type-judgment/)
   - [单例内置对象](https://moxiaodegu.github.io/2020/01/singleton-built-object/)
+  - [Object](https://moxiaodegu.github.io/2020/01/object/)
 
 - 编译执行
   - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
