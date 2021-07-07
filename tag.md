@@ -24,6 +24,9 @@ layout: post
   - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
   - [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
 
+  - 数据结构
+  - [栈、队列和线性表](https://moxiaodegu.github.io/2021/01/stack-queue/)
+
 <!-- - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/) -->
 
 **React**
