@@ -58,6 +58,6 @@ toString() 是 Object 的原型方法，调用该方法，默认返回当前对�
     Object.prototype.toString({}) // "[object Object]"
 ```
 
-**Arrray.isArray()**
+**其他方法**
 
-判断是否是一个数组（不管在哪个全局作用域下都能判断）
+- Array.isArray() 判断是否是一个数组（不管在哪个全局作用域下都能判断）
