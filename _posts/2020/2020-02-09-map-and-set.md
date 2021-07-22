@@ -6,7 +6,9 @@ layout: post
 
 # Map
 
-- Map是新的集合类型，给js带来了真正的键值存储机智
+> Map 对象保存键值对，并且能够记住键的原始插入顺序。任何值(对象或者原始值) 都可以作为一个键或一个值
+
+- Map是新的集合类型，给js带来了真正的键值存储机制
 - Map的键的值改变，依然可找到值，它俩内部的引用是无法修改的
 
     ![20210721203618](https://cdn.jsdelivr.net/gh/moxiaodegu/ImageHosting/imagesBlogs/20210721203618.png)
@@ -40,7 +42,8 @@ let map = new Map(IteratorObject) // 可传入可迭代对象
 
 ## Map与数组的关系
 
-使用常规的Map构造函数可以将一个二维键值对数组转换成一个Map对象
+> 用常规的Map构造函数可以将一个二维键值对数组转换成一个Map对象
+> 使用Array.form()可以把Map对象转化成一个二维键值对数组Array.form(myMap) 或者 [...myMap]
 
 ```javascript
 let kvArray = [["key1", "value1"], ["key2", "value2"]];
@@ -50,6 +53,10 @@ let myMap = new Map(kvArray);
 myMap.get("key1"); // 返回值为 "value1"
 
 ```
+
+## Map转对象
+
+- Object.fromEntries(map);
 
 ## 复制或合并 Maps
 
@@ -101,5 +108,11 @@ Map的大部分功能都可用Object替代，但是二者有细微差别
 6. 查找速度几乎一样，object可能更好一些
 7. Map比Object删除性能更好
 8. Map可通过size获取长度，object不行
+
+## weakMap(弱映射)
+
+> 
+
+
 
 # Set
