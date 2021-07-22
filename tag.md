@@ -20,6 +20,7 @@ layout: post
   - [Object](https://moxiaodegu.github.io/2020/01/object/)
   - [Array](https://moxiaodegu.github.io/2020/02/array/)
   - [Map & Set](https://moxiaodegu.github.io/2020/02/map-and-set/)
+  - [weakMap & weakSet](https://moxiaodegu.github.io/2020/02/weakmap-and-weakset/)
 
 - 编译执行
   - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)

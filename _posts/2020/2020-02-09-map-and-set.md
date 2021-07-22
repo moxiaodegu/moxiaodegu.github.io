@@ -109,10 +109,5 @@ Map的大部分功能都可用Object替代，但是二者有细微差别
 7. Map比Object删除性能更好
 8. Map可通过size获取长度，object不行
 
-## weakMap(弱映射)
-
-> 
-
-
-
 # Set
+
