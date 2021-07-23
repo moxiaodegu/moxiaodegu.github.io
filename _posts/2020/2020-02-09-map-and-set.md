@@ -37,8 +37,11 @@ let map = new Map(IteratorObject) // 可传入可迭代对象
 
 ## 迭代
 
-- forEach
 - for...of
+
+## 循环遍历
+
+- forEach
 
 ## Map与数组的关系
 
@@ -111,3 +114,34 @@ Map的大部分功能都可用Object替代，但是二者有细微差别
 
 # Set
 
+> Set 是值的集合，按照插入顺序迭代元素，set的值是唯一的
+
+## Set 属性
+
+- size
+
+## Set 方法
+
+1. add(val) 末尾添加，返回Set对象
+2. clear() 移除所有
+3. delete(val) 删除val
+4. entries() 返回一个新的迭代器对象
+5. has(val)
+6. keys() 与values方法相同，返回新的迭代器对象
+7. values()
+
+## 迭代
+
+- for...of
+
+## 循环遍历
+
+- forEach
+
+## array 和 Set对象 相互转换
+
+```javascript
+mySet = new Set([1, 2, 3, 4]);
+[...mySet];  
+Array.from(mySet)
+```
