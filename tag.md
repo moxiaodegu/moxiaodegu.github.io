@@ -10,7 +10,7 @@ layout: post
   - [script标签](https://moxiaodegu.github.io/2020/04/script/)
   - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
   - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
-  - [let、const和var的区别](https://moxiaodegu.github.io/2021/01/let-var/)
+  - [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
   
 - 数据类型
   - [数据类型有哪些](https://moxiaodegu.github.io/2020/03/dataType/)
@@ -31,7 +31,7 @@ layout: post
   - [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
 
 - 数据结构
-  - [栈、队列和线性表](https://moxiaodegu.github.io/2021/01/stack-queue/)
+  - [栈、队列和线性表](https://moxiaodegu.github.io/2020/01/stack-queue/)
 
 <!-- - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/) -->
 
