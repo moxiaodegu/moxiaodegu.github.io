@@ -1,6 +1,6 @@
 ---
-title: Array
-tags: NodeList对象
+title: NodeList对象
+tags: JavaScript
 layout: post
 ---
 

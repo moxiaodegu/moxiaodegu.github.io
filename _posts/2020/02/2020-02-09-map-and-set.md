@@ -1,6 +1,6 @@
 ---
 title: Map & Set
-tags: 工具
+tags: JavaScript
 layout: post
 ---
 

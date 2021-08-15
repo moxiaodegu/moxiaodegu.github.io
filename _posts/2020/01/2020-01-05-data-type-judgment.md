@@ -1,6 +1,6 @@
 ---
 title: 判断数据类型的几种方法
-tags: 工具
+tags: JavaScript
 layout: post
 ---
 

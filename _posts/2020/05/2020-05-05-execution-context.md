@@ -1,6 +1,6 @@
 ---
 title: 执行上下文和作用域
-tags: 工具
+tags: JavaScript
 layout: post
 ---
 

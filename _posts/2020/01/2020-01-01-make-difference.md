@@ -1,6 +1,6 @@
 ---
 title: 基本类型和引用类型有哪些不同
-tags: 工具
+tags: JavaScript
 layout: post
 ---
 

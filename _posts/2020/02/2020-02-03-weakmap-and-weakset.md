@@ -1,6 +1,6 @@
 ---
 title: weakMap & weakSet
-tags: 工具
+tags: JavaScript
 layout: post
 ---
 
