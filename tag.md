@@ -11,6 +11,7 @@ layout: post
   - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
   - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
   - [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
+  - [NodeList对象](https://moxiaodegu.github.io/2020/01/node-list-obj/)
   
 - 数据类型
   - [数据类型有哪些](https://moxiaodegu.github.io/2020/03/dataType/)
@@ -37,7 +38,7 @@ layout: post
 
 **node**
 
-
+- [什么是node](https://moxiaodegu.github.io/2021/01/nodejs/)
 
 **React**
 
