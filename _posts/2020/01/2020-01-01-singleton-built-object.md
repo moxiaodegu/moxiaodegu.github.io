@@ -1,6 +1,6 @@
 ---
 title: 单例内置对象
-tags: 工具
+tags: JavaScript
 layout: post
 ---
 
