@@ -1,6 +1,6 @@
 ---
 title: 栈、队列和线性表
-tags: JavaScript
+tags: 数据结构
 layout: post
 ---
 
