@@ -50,6 +50,7 @@ layout: post
 ### git
 
 - [git命令](https://moxiaodegu.github.io/2020/02/git/)
+- [git工作区、暂存区、版本库](https://moxiaodegu.github.io/2020/02/git-stage/)
 
 ### 其他
 
