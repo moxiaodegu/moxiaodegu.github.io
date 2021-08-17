@@ -4,7 +4,7 @@ tags: blog
 layout: post
 ---
 
-**JavaScript**
+### JavaScript
 
 - 语言基础
   - [script标签](https://moxiaodegu.github.io/2020/04/script/)
@@ -33,25 +33,25 @@ layout: post
 - 其他
   - <!-- - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/) -->
 
-**数据结构**
+### 数据结构
 
 - [栈、队列和线性表](https://moxiaodegu.github.io/2020/01/stack-queue/)
 
-**node**
+### node
 
 - [什么是node](https://moxiaodegu.github.io/2021/01/nodejs/)
 
-**React**
+### React
 
 - [React入门基础概念](https://moxiaodegu.github.io/2020/12/react-basics/)
 
-**npm/yarn**
+<!-- **npm/yarn** -->
 
-**git**
+### git
 
 - [git命令](https://moxiaodegu.github.io/2020/02/git/)
 
-**其他**
+### 其他
 
 - [常用的一些命令行](https://moxiaodegu.github.io/2020/03/tools-commoncmd/)
 - [如何通过Jekyll搭建GitHub博客](https://moxiaodegu.github.io/2020/11/build-blog/)
