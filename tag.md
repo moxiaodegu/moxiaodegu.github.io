@@ -49,7 +49,7 @@ layout: post
 
 **git**
 
-- [git](https://moxiaodegu.github.io/2020/02/git/)
+- [git命令](https://moxiaodegu.github.io/2020/02/git/)
 
 **其他**
 
