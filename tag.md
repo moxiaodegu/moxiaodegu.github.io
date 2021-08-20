@@ -30,8 +30,9 @@ layout: post
 - 编译执行
   - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
   - [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
-- 其他
-  - <!-- - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/) -->
+- 类与面向对象
+  - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
+  - [Object.create()-VS-new构造函数](https://moxiaodegu.github.io/2020/06/object-create-Function/)
 
 ### 数据结构
 
