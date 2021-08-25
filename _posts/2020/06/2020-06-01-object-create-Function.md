@@ -1,8 +1,6 @@
-<!--
- * @Descripttion: 
- * @version: 
- * @Author: mayanli
- * @Date: 2021-08-20 18:54:14
- * @LastEditors: mayanli
- * @LastEditTime: 2021-08-20 18:54:14
--->
+---
+title: Object.create() VS new构造函数 VS 工厂模式
+tags: JavaScript
+layout: post
+---
+
