@@ -1,6 +1,6 @@
 ---
 title: 常用的一些命令行
-tags: 工具
+tags: 其他
 layout: post
 ---
 

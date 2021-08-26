@@ -1,6 +1,6 @@
 ---
 title: 如何通过Jekyll搭建GitHub博客
-tags: 工具
+tags: 其他
 layout: post
 ---
 
