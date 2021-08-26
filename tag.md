@@ -32,7 +32,7 @@ layout: post
   - [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
 - 类与面向对象
   - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
-  - [Object.create()|new构造函数|工厂模式](https://moxiaodegu.github.io/2020/06/object-create-Function/)
+  - [Object.create()/new构造函数/工厂模式](https://moxiaodegu.github.io/2020/06/object-create-Function/)
 - 设计模式
 
 ### 数据结构
