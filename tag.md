@@ -58,4 +58,5 @@ layout: post
 
 - [常用的一些命令行](https://moxiaodegu.github.io/2020/03/tools-commoncmd/)
 - [如何通过Jekyll搭建GitHub博客](https://moxiaodegu.github.io/2020/11/build-blog/)
-- [vscode+picgo+github搭建图床](https://moxiaodegu.github.io/2020/7/picgo/)
+- [vscode+picgo+github搭建图床](https://moxiaodegu.github.io/2020/07/picgo/)
+- [vscode插件PasteImage给md文档添加截图](https://moxiaodegu.github.io/2020/07/PasteImage/)
