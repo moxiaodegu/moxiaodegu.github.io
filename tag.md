@@ -34,6 +34,7 @@ layout: post
   - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
   - [Object.create()/new构造函数/工厂模式](https://moxiaodegu.github.io/2020/06/object-create-Function/)
 - 设计模式
+  - [工厂模式](https://moxiaodegu.github.io/2020/08/factory-mode/)
 
 ### 数据结构
 
