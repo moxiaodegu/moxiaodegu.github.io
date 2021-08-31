@@ -41,16 +41,34 @@
 //     console.log(i)
 // }
 
-const Person = function(name,age) {
-    this.name = name
-    this.age = age
-    this.sayName = function() {
-        console.log(name)
-    }
+// const Person = function(name,age) {
+//     this.name = name
+//     this.age = age
+//     this.sayName = function() {
+//         console.log(name)
+//     }
+// }
+
+// // 构造函数调用
+// const person1 = new Person("limei",20)
+// console.log(person1)
+
+//------------------------------------
+
+
+// function Person() {}
+// Person.prototype.age = 20
+// Person.prototype.name = "liMei"
+
+// let person1 = new Person
+
+// console.log(person1)
+
+const Person = {
+    age:20,
+    name:"liMei"
 }
 
-// 构造函数调用
-const person1 = new Person("limei",20)
-person1.sayName()
+const person1 = Object.create(Person)
 
-
+console.log(person1)
