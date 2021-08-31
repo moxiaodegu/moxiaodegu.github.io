@@ -28,17 +28,29 @@
 // console.log(iterator[Symbol.iterator]().next())
 
 
-function generatorFn(n) {
-    if (n>0) {       
-        generatorFn(n-1)
-    } 
-    console.log(n)
-}
+// function generatorFn(n) {
+//     if (n>0) {       
+//         generatorFn(n-1)
+//     } 
+//     console.log(n)
+// }
 
-generatorFn(3)
+// generatorFn(3)
 
 // for ( let i of generatorFn(3)) {
 //     console.log(i)
 // }
+
+const Person = function(name,age) {
+    this.name = name
+    this.age = age
+    this.sayName = function() {
+        console.log(name)
+    }
+}
+
+// 构造函数调用
+const person1 = new Person("limei",20)
+person1.sayName()
 
 

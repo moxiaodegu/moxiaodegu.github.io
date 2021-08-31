@@ -35,6 +35,8 @@ layout: post
   - [Object.create()/new构造函数/工厂模式](https://moxiaodegu.github.io/2020/06/object-create-Function/)
 - 设计模式
   - [工厂模式](https://moxiaodegu.github.io/2020/08/factory-mode/)
+  - [构造函数模式](https://moxiaodegu.github.io/2020/08/Function/)
+  - [原型模式](https://moxiaodegu.github.io/2020/08/prototype/)
 
 ### 数据结构
 
