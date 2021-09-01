@@ -72,3 +72,9 @@ const Person = {
 const person1 = Object.create(Person)
 
 console.log(person1)
+
+
+function Person() {
+
+}
+
