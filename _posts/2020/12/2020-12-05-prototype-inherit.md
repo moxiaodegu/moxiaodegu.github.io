@@ -6,11 +6,9 @@ layout: post
 
 # 原型
 
-每个函数在创建时，都会添加一个prototype属性指向它的原型对象，这个原型对象会自动添加一个constructor属性指向这个构造函数，两者循环引用
-
 ## 1. 理解原型
 
-每次通过new调用构造函数创建一个新实例时，实例的隐式原型[[prototype]]指针会指向构造函数的原型对象，如：Person.prototype。浏览器会暴露一个`__proto__` 来访问隐式原型[[prototype]]
+函数在创建时，都会添加一个prototype属性指向它的原型对象，这个原型对象会自动添加一个constructor属性指向这个构造函数，每次通过new调用构造函数创建一个新实例时，实例的隐式原型[[prototype]]指针会指向构造函数的原型对象，如：Person.prototype。浏览器会暴露一个`__proto__` 来访问隐式原型[[prototype]]
 
 > 实例和构造函数没有直接联系，而是和构造函数的原型有直接联系
 
@@ -76,7 +74,7 @@ console.log(Person.prototype instanceof Object); // true
 
 ## 3. 原型层级
 
-> 在通过对象访问属性时，先在对象实例本身查找，找不到会通过__proto__指针进入到原型对象，通过原型链一级一级往上查找，直到找到返回或到原型链顶端
+> 在通过对象访问属性时，先在对象实例本身查找，找不到会通过__proto__指针进入到原型对象，通过原型链一级一级往上查找，直到找到返回或到原型链顶端查找结束
 
 - 实例属性和原型属性名称一致，实例属性会覆盖原型属性，但是不会更改原型属性,通过delete删除掉实例属性，原型属性还是会通过原型链被找到
 
@@ -139,11 +137,9 @@ person1.hasOwnPropertyOf("name") // 判断name属性是不是在实例person1上
 
 - in操作符
 
-  - 无论属性在实力上还是原型上都会返回true
+  - 无论属性在实例上还是原型上都会返回true
 
     ```javascript
-      "name" in person1 
-
       // 判断某个属性在不在原型上
       function hasPrototypeProperty(object,name) {
           return !object.hasOwnPropertyOf(name) && (name in object)
@@ -199,20 +195,20 @@ friend.sayHi(); // "hi"，没问题！
 function Person() {} 
 let friend = new Person(); 
 Person.prototype = { 
- constructor: Person, 
- name: "Nicholas", 
- age: 29, 
- job: "Software Engineer", 
- sayName() { 
- console.log(this.name); 
- } 
+    constructor: Person, 
+    name: "Nicholas", 
+    age: 29, 
+    job: "Software Engineer", 
+    sayName() { 
+    console.log(this.name); 
+    } 
 }; 
+
 friend.sayName(); // 错误
 
 ```
 
 ![20210902143730](https://cdn.jsdelivr.net/gh/moxiaodegu/ImageHosting/imagesBlogs/20210902143730.png)
-
 
 ## 8. 原型的问题
 
@@ -221,7 +217,11 @@ friend.sayName(); // 错误
 
 ## 9. 原型链
 
+我们都知道，当我们用构造函数创建一个实例的时候，实例的__proto__指向构造函数的原型prototype，如果构造函数的原型是另一个类型的实例，这就意味着这个原型内部也有一个__proto__ 指向另一个原型。这样就在实例和原型之间构造了一条原型链。
+
+
 # 继承
 
 ## 1. 原型与继承的关系
+
 
