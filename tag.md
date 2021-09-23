@@ -5,6 +5,7 @@ layout: post
 ---
 
 ### JavaScript
+---
 
 - 语言基础
   - [script标签](https://moxiaodegu.github.io/2020/04/script/)
@@ -42,29 +43,39 @@ layout: post
   - [原型模式/构造函数模式/工厂模式](https://moxiaodegu.github.io/2020/06/object-create-Function/)
 
 ### 数据结构
+---
 
 - [栈、队列和线性表](https://moxiaodegu.github.io/2020/01/stack-queue/)
 
 ### node
+---
 
-- [什么是node](https://moxiaodegu.github.io/2021/01/nodejs/)
+- MongoDB
+
+  - [mac本地安装MongoDB](https://moxiaodegu.github.io/2021/02/MongoDB/)
+
+<!-- - [什么是node](https://moxiaodegu.github.io/2021/01/nodejs/) -->
 
 ### React
+---
 
 - [React入门基础概念](https://moxiaodegu.github.io/2020/12/react-basics/)
 
 <!-- **npm/yarn** -->
 
 ### git
+---
 
 - [git命令](https://moxiaodegu.github.io/2020/02/git/)
 - [git工作区、暂存区、版本库](https://moxiaodegu.github.io/2020/02/git-stage/)
 
 ### 其他
+---
 
 - [常用的一些命令行](https://moxiaodegu.github.io/2020/03/tools-commoncmd/)
 - [如何通过Jekyll搭建GitHub博客](https://moxiaodegu.github.io/2020/11/build-blog/)
 - [vscode+picgo+github搭建图床](https://moxiaodegu.github.io/2020/07/picgo/)
 - [vscode插件PasteImage给md文档添加截图](https://moxiaodegu.github.io/2020/07/PasteImage/)
 - [mac使用](https://moxiaodegu.github.io/2020/07/mac/)
+- [md文档编写](https://moxiaodegu.github.io/2020/07/md/)
 - [宝藏网站](https://moxiaodegu.github.io/2020/07/website/)
