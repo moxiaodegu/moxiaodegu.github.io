@@ -51,7 +51,6 @@ layout: post
 ---
 
 - MongoDB
-
   - [mac本地安装MongoDB](https://moxiaodegu.github.io/2021/02/MongoDB/)
 
 <!-- - [什么是node](https://moxiaodegu.github.io/2021/01/nodejs/) -->
