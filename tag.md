@@ -42,9 +42,11 @@ layout: post
   - [原型模式](https://moxiaodegu.github.io/2020/08/prototype/)
   - [原型模式/构造函数模式/工厂模式](https://moxiaodegu.github.io/2020/06/object-create-Function/)
 
-### 数据结构
+### 数据结构和算法
+
 ---
 
+- [js遍历树形结构并合并相同节点](https://moxiaodegu.github.io/2020/08/traversal-tree-structure/)
 - [栈、队列和线性表](https://moxiaodegu.github.io/2020/01/stack-queue/)
 
 ### Node
