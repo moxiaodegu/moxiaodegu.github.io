@@ -60,7 +60,8 @@ function treeIterator(tree: ITreeIterator[]) {
   tree.forEach((e: ITreeIterator) => {
     const index = arr.findIndex(i => i.name == e.name)
     if (index > -1) {
-      arr[index].children = treeIterator([...arr[index].children, ...e.children])
+      arr[index].children =
+        treeIterator([...arr[index].children, ...e.children]).sort((a: any, b: any) => a.name - b.name)
     } else {
       arr.push({ ...e, children: treeIterator(e.children) })
     }
