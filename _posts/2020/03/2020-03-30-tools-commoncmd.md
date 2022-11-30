@@ -7,6 +7,10 @@ layout: post
 
 总结一些常用的命令。
 
+**IOS**
+- 下载brew /bin/zsh -c "$(curl -fsSL https://gitee.com/cunkai/HomebrewCN/raw/master/Homebrew.sh)"
+
+
 **Windows**
 
 - 回到跟目录：cd\

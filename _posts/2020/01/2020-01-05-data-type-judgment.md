@@ -16,6 +16,7 @@ layout: post
 ```javascript
     const str = "str"
     typeof str // "string"
+
 ```
 
 **instanceof**
@@ -23,7 +24,7 @@ layout: post
 通过原型链判断A是否为B的实例，表达式为：A instanceof B，如果 A 是 B 的实例，则返回 true,否则返回 false。
 
 - 能准确判断引用数据类型，不能判断基本数据类型
-- 它的内部机制是通过判断对象的原型链中能否找到类型的prototype
+- 它的内部机制是通过判断对象的原型链中能否出现过这个构造函数
 - null instanceof Object // false
   
 ```javascript
@@ -36,6 +37,10 @@ layout: post
 **constructor**
 
 当一个函数 F被定义时，JS引擎会为F添加 prototype 原型，然后再在 prototype上添加一个 constructor 属性，并让其指向 F 的引用。
+
+判断实例的指向原型的constructor的值是否是某个构造函数
+
+原理：我们知道根据构造函数创建实例，这个实例对象的原型钩子也就是隐式prototype也就是浏览器的__proto__指向了构造函数的原型prototype，原型prototype对象的constructor指向了这个原型
 
 - constructor 是原型prototype的一个属性。
 - null undefined 没有constructor属性，所以不能判断
@@ -56,6 +61,15 @@ toString() 是 Object 的原型方法，调用该方法，默认返回当前对�
 ```javascript
     Object.prototype.toString.call("123") // "[object String]"
     Object.prototype.toString({}) // "[object Object]"
+```
+
+***isPrototypeOf***
+
+原型方法，只适用于引用类型，判断当前实例的__proto__是否指向原型链上的原型
+
+```javascript
+    const a = new String('aa')
+    String.prototype.isPrototype(a)
 ```
 
 **其他方法**

@@ -67,7 +67,6 @@ function generatorFn(n) {
 
 generatorFn(3)
 
-
 ```
 
 ## 提前终止生成器
@@ -75,10 +74,11 @@ generatorFn(3)
 - return 强制生成器进入关闭状态，一旦关闭就无法恢复了。后续调用返回done为true，for-of等内置语言会忽略done：true的返回值
 - throw 
 
-
 ## 总结
 
 生成器函数是一种特殊的函数，调用之后会返回一个生成器对象，生成器对象实现了iterable接口，所以可以用在任何可以用可迭代对象的地方。yield关键字能够暂停执行生成器函数，可通过next()函数接收和产生输出，yield*可以把可迭代对象序列化成一连串值
+```javascript
 
+```
 
 
