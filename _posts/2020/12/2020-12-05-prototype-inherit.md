@@ -1,5 +1,5 @@
 ---
-title: 理解原型和继承
+title: 理解原型
 tags: JavaScript
 layout: post
 ---
@@ -9,6 +9,9 @@ layout: post
 ## 1. 理解原型
 
 函数在创建时，都会添加一个prototype属性指向它的原型对象，这个原型对象会自动添加一个constructor属性指向这个构造函数，每次通过new调用构造函数创建一个新实例时，实例的隐式原型[[prototype]]指针会指向构造函数的原型对象，如：Person.prototype。浏览器会暴露一个`__proto__` 来访问隐式原型[[prototype]]
+
+构造函数、原型和实例的关系：
+每个构造函数都有一个原型对象prototype，原型prototype有一个constructor属性指回构造函数，而实例有一个内部指针__proto__指向原型
 
 > 实例和构造函数没有直接联系，而是和构造函数的原型有直接联系
 
@@ -210,6 +213,12 @@ friend.sayName(); // 错误
 
 ![20210902143730](https://cdn.jsdelivr.net/gh/moxiaodegu/ImageHosting/imagesBlogs/20210902143730.png)
 
+## 8. 原生原型
+原生引用类型的构造函数
+1. Function
+2. Object
+3. ...
+
 ## 8. 原型的问题
 
 1. 弱化构造函数传递参数的能力
@@ -219,9 +228,25 @@ friend.sayName(); // 错误
 
 我们都知道，当我们用构造函数创建一个实例的时候，实例的__proto__指向构造函数的原型prototype，如果构造函数的原型是另一个类型的实例，这就意味着这个原型内部也有一个__proto__ 指向另一个原型。这样就在实例和原型之间构造了一条原型链。
 
+- 所有引用类型都继承Object，任何函数的默认原型都是一个Object实例，这个实例的内部指针__prot__ 指向Object.prototype
 
-# 继承
+![](image/2022-11-29-23-19-57.png)
 
-## 1. 原型与继承的关系
-
-
+```javascript
+    function SuperType() {
+      this.property = true;
+    }
+    SuperType.prototype.getSuperValue = function() {
+      return this.property;
+    };
+    function SubType() {
+      this.subproperty = false;
+    }
+    // 继承SuperType
+    SubType.prototype = new SuperType();
+    SubType.prototype.getSubValue = function () {
+      return this.subproperty;
+    };
+    let instance = new SubType();
+    console.log(instance.getSuperValue()); // true
+```
