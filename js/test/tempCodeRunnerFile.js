@@ -1,28 +1,33 @@
-function SuperFun() {
-  this.name = 'lining'
-  // this.setName = ()=>{
-  //   this.name = 'mamma'
-  // }
+function object(o) {
+  function F() {}
+  F.prototype = o
+  F.prototype.constructor = F
+  return new F()
 }
 
-// SuperFun.prototype.setName = ()=>{
-//   this.name = 'mamma'
-// }
-
-function SubFun(){
-  SuperFun.call(this) // 盗用构造函数
-
-  this.setName = ()=>{
-    this.name = 'mamma'
-  }
+function jsheng(superFun, sonFun) {
+  const prototype = object(superFun.prototype)
+  prototype.constructor = sonFun
+  sonFun.prototype = prototype
 }
-SubFun.prototype = new SuperFun() // 原型模式
 
-const a = new SubFun()
+function Super(name) {
+  this.name = '11'
+  this.city = ['beijing', name]
+}
 
-console.log(a.name) // lining
-a.setName()
-console.log(a.name) // mamma
+Super.prototype.sayHi = () => {
+  console.log('super')
+}
 
-const b = new SubFun()
-console.log(b.name) // mamma
+function Son(name) {
+  Super.call(this, name)
+  this.age = '12'
+}
+
+jsheng(Super, Son)
+
+const shile = new Son('shanghai')
+
+console.log(shile.sayHi())
+
