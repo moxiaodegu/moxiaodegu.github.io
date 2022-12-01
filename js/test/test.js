@@ -163,36 +163,20 @@ console.log(person.name); // "Shelby, Court, Van, Rob, Barbie"
 
 
 
-function object(o) {
-  function F() {}
-  F.prototype = o
-  F.prototype.constructor = F
-  return new F()
+
+
+
+
+
+const info = {
+  name1:'lili',
+  age:11,
+  get name(){
+    return this.name1
+  },
+  set name(n){
+    this.name1 = n+'8888'
+  },
 }
-
-function jsheng(superFun, sonFun) {
-  const prototype = object(superFun.prototype)
-  prototype.constructor = sonFun
-  sonFun.prototype = prototype
-}
-
-function Super(name) {
-  this.name = '11'
-  this.city = ['beijing', name]
-}
-
-Super.prototype.sayHi = () => {
-  console.log('super')
-}
-
-function Son(name) {
-  Super.call(this, name)
-  this.age = '12'
-}
-
-jsheng(Super, Son)
-
-const shile = new Son('shanghai')
-
-shile.sayHi()
-
+info.name = '3333'
+console.log(info.name,info.age)
