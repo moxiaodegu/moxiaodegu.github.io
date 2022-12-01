@@ -36,7 +36,7 @@ layout: post
   - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
   - [理解原型](https://moxiaodegu.github.io/2020/12/prototype-inherit/)
   - [理解继承](https://moxiaodegu.github.io/2020/12/inherit/)
-
+  - [理解类](https://moxiaodegu.github.io/2020/12/class/)
 - 设计模式
   - [工厂模式](https://moxiaodegu.github.io/2020/08/factory-mode/)
   - [构造函数模式](https://moxiaodegu.github.io/2020/08/Function/)

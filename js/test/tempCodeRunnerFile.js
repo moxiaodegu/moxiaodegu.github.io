@@ -1,28 +1,12 @@
-function SuperFun() {
-  this.name = 'lining'
-  // this.setName = ()=>{
-  //   this.name = 'mamma'
-  // }
+const info = {
+  name1:'lili',
+  age:11,
+  get name(){
+    return this.name1
+  },
+  set name(n){
+    this.name1 = n+'8888'
+  },
 }
-
-// SuperFun.prototype.setName = ()=>{
-//   this.name = 'mamma'
-// }
-
-function SubFun(){
-  SuperFun.call(this) // 盗用构造函数
-
-  this.setName = ()=>{
-    this.name = 'mamma'
-  }
-}
-SubFun.prototype = new SuperFun() // 原型模式
-
-const a = new SubFun()
-
-console.log(a.name) // lining
-a.setName()
-console.log(a.name) // mamma
-
-const b = new SubFun()
-console.log(b.name) // mamma
+info.name = '3333'
+console.log(info.name,info.age)

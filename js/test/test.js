@@ -65,8 +65,8 @@
 // console.log(person1)
 
 const Person = {
-    age:20,
-    name:"liMei"
+  age: 20,
+  name: "liMei"
 }
 
 const person1 = Object.create(Person)
@@ -82,12 +82,12 @@ function Person() {
 
 function Person() {} //声明之后就有一个与之关联的原型对象,可通过Person.prototype访问
 
-let person1 =  new Person
-let person2 =  new Person
+let person1 = new Person
+let person2 = new Person
 
 /*
  * 一条原型链
- */ 
+ */
 
 // 实例对象的__proto__指向构造函数的原型对象
 console.log(person1.__proto__ == Person.prototype) // true
@@ -106,7 +106,7 @@ console.log(person1.__proto__ == person2.__proto__) // true
 
 /*
  * 是否包含指定构造函数的原型：
- */ 
+ */
 console.log(person1 instanceof Person); // true 
 console.log(person1 instanceof Object); // true 
 console.log(Person.prototype instanceof Object); // true
@@ -123,10 +123,10 @@ function SuperFun() {
 //   this.name = 'mamma'
 // }
 
-function SubFun(){
+function SubFun() {
   SuperFun.call(this) // 盗用构造函数
 
-  this.setName = ()=>{
+  this.setName = () => {
     this.name = 'mamma'
   }
 }
@@ -140,3 +140,43 @@ console.log(a.name) // mamma
 
 const b = new SubFun()
 console.log(b.name) // mamma
+
+
+function object(o) {
+  function F() {}
+  F.prototype = o;
+  return new F();
+}
+
+let person = {
+  name: "Nicholas",
+  friends: ["Shelby", "Court", "Van"]
+};
+let anotherPerson = object(person);
+anotherPerson.name = "Greg";
+anotherPerson.friends.push("Rob");
+let yetAnotherPerson = object(person);
+yetAnotherPerson.name = "Linda";
+yetAnotherPerson.friends.push("Barbie");
+console.log(person.name); // "Shelby, Court, Van, Rob, Barbie"
+
+
+
+
+
+
+
+
+
+const info = {
+  name1:'lili',
+  age:11,
+  get name(){
+    return this.name1
+  },
+  set name(n){
+    this.name1 = n+'8888'
+  },
+}
+info.name = '3333'
+console.log(info.name,info.age)
