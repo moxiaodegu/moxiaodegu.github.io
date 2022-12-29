@@ -1,12 +1,15 @@
-const info = {
-  name1:'lili',
-  age:11,
-  get name(){
-    return this.name1
-  },
-  set name(n){
-    this.name1 = n+'8888'
-  },
+const obj = {
+  name:'lllllllll'
 }
-info.name = '3333'
-console.log(info.name,info.age)
+
+const handler = {
+  get(){
+    return 'mmmmm'
+  }
+}
+
+const proxy = new Proxy(obj,handler)
+
+console.log(proxy.name)
+
+console.log(obj.name)

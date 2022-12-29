@@ -148,17 +148,17 @@ function object(o) {
   return new F();
 }
 
-let person = {
-  name: "Nicholas",
-  friends: ["Shelby", "Court", "Van"]
-};
-let anotherPerson = object(person);
-anotherPerson.name = "Greg";
-anotherPerson.friends.push("Rob");
-let yetAnotherPerson = object(person);
-yetAnotherPerson.name = "Linda";
-yetAnotherPerson.friends.push("Barbie");
-console.log(person.name); // "Shelby, Court, Van, Rob, Barbie"
+// let person = {
+//   name: "Nicholas",
+//   friends: ["Shelby", "Court", "Van"]
+// };
+// let anotherPerson = object(person);
+// anotherPerson.name = "Greg";
+// anotherPerson.friends.push("Rob");
+// let yetAnotherPerson = object(person);
+// yetAnotherPerson.name = "Linda";
+// yetAnotherPerson.friends.push("Barbie");
+// console.log(person.name); // "Shelby, Court, Van, Rob, Barbie"
 
 
 
@@ -169,7 +169,6 @@ console.log(person.name); // "Shelby, Court, Van, Rob, Barbie"
 
 
 const info = {
-  name1:'lili',
   age:11,
   get name(){
     return this.name1
@@ -178,5 +177,145 @@ const info = {
     this.name1 = n+'8888'
   },
 }
+console.log(info.name,info.age)
 info.name = '3333'
 console.log(info.name,info.age)
+
+function Super() {
+  this.name = 'mlili'
+}
+Super.prototype.say = function(){
+  console.log(this.name)
+}
+
+const son = new Super()
+// console.log(son.name)
+son.say()
+
+
+class Person {
+  name ='4444'
+  constructor(age) {
+    this.age_ = age;
+  }
+  sayAge() {
+    console.log(Person.name,999999);
+  }
+  static create() {
+    // 使用随机年龄创建并返回一个Person实例
+    return new Person(Math.floor(Math.random() * 100),44444);
+  }
+  static create1() {
+    // 使用随机年龄创建并返回一个Person实例
+    return new Person(Math.floor(Math.random() * 100),44444);
+  }
+}
+// console.log(Person.create()); // Person { age_: ... }
+
+const aa = new Person(22)
+console.log(Person.create1())
+
+
+function Fun() {
+  this.name='00000'
+}
+
+class Cla extends Fun{
+  constructor() {
+    super()
+    this.age = 23
+  }
+}
+
+const dd = new Cla()
+
+console.log(dd)
+
+
+class Person {
+  constructor() {
+    return {
+      name:'name'
+    }
+  }
+}
+ 
+console.log(Person.prototype.constructor === Person)
+
+const person = new Person()
+console.log(person instanceof Person)
+console.log(person.__proto__ == Object.prototype)
+console.log(typeof Person)
+
+const wa =  {
+ name: '333'
+}
+console.log(ç.__proto__ == Object.prototype)
+
+const aaa = new Object({name:111})
+
+console.log(aaa.__proto__)
+
+new class Person1{
+  constructor(x){
+    console.log(x)
+  }
+}('lll')
+
+class Person {
+  // name = 6
+  constructor(){
+    this.name='6'
+  }
+
+  getname() {
+    return this.name
+  }
+}
+const aa1 = new Person
+console.log(aa1.name);
+console.log(aa1.getname());
+
+
+class A {
+  constructor() {
+    this.x = 1;
+  }
+  print() {
+    console.log(this.x);
+  }
+}
+
+class B extends A {
+  constructor() {
+    super();
+    this.x = 2;
+  }
+  m() {
+    print();
+  }
+}
+
+let b2 = new B();
+b2.m() 
+
+
+const obj = {
+  name:'lllllllll'
+}
+
+const handler = {
+  get(){
+    return 'mmmmm'
+  }
+}
+
+const proxy = new Proxy(obj,handler)
+
+console.log(proxy.name)
+
+console.log(obj.name)
+
+
+
+
