@@ -12,7 +12,7 @@ layout: post
   - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
   - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
   - [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
-  - [NodeList对象](https://moxiaodegu.github.io/2020/01/node-list-obj/)
+  <!-- - [NodeList对象](https://moxiaodegu.github.io/2020/01/node-list-obj/) -->
   
 - 数据类型
   - [数据类型有哪些](https://moxiaodegu.github.io/2020/03/dataType/)
@@ -37,6 +37,13 @@ layout: post
   - [理解原型](https://moxiaodegu.github.io/2020/12/prototype-inherit/)
   - [理解继承](https://moxiaodegu.github.io/2020/12/inherit/)
   - [理解类](https://moxiaodegu.github.io/2020/12/class/)
+  
+- 代理
+  - [代理proxy](https://moxiaodegu.github.io/2020/12/proxy/)
+
+- 函数
+  - [代理proxy](https://moxiaodegu.github.io/2020/12/proxy/)
+
 - 设计模式
   - [工厂模式](https://moxiaodegu.github.io/2020/08/factory-mode/)
   - [构造函数模式](https://moxiaodegu.github.io/2020/08/Function/)
