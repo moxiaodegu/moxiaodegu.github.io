@@ -42,7 +42,7 @@ layout: post
   - [代理proxy](https://moxiaodegu.github.io/2020/12/proxy/)
 
 - 函数
-  - [代理proxy](https://moxiaodegu.github.io/2020/12/proxy/)
+  - [函数](https://moxiaodegu.github.io/2020/12/function/)
 
 - 设计模式
   - [工厂模式](https://moxiaodegu.github.io/2020/08/factory-mode/)
