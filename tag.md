@@ -4,7 +4,14 @@ tags: blog
 layout: post
 ---
 
+## 面试
+
+---
+
+## 学习笔记
+
 ### JavaScript
+
 ---
 
 - 语言基础
@@ -12,8 +19,6 @@ layout: post
   - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
   - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
   - [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
-  <!-- - [NodeList对象](https://moxiaodegu.github.io/2020/01/node-list-obj/) -->
-  
 - 数据类型
   - [数据类型有哪些](https://moxiaodegu.github.io/2020/03/dataType/)
   - [基本类型和引用类型有哪些不同](https://moxiaodegu.github.io/2020/01/make-difference/)
@@ -23,27 +28,21 @@ layout: post
   - [Array](https://moxiaodegu.github.io/2020/02/array/)
   - [Map & Set](https://moxiaodegu.github.io/2020/02/map-and-set/)
   - [weakMap & weakSet](https://moxiaodegu.github.io/2020/02/weakmap-and-weakset/)
-
 - 迭代器与生成器
   - [迭代器](https://moxiaodegu.github.io/2020/02/iterator/)
   - [生成器](https://moxiaodegu.github.io/2020/02/generator/)
-
 - 编译执行
   - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
   - [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
-
 - 类与面向对象
   - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
   - [理解原型](https://moxiaodegu.github.io/2020/12/prototype-inherit/)
   - [理解继承](https://moxiaodegu.github.io/2020/12/inherit/)
   - [理解类](https://moxiaodegu.github.io/2020/12/class/)
-  
 - 代理
   - [代理proxy](https://moxiaodegu.github.io/2020/12/proxy/)
-
 - 函数
   - [函数](https://moxiaodegu.github.io/2020/12/function/)
-
 - 设计模式
   - [工厂模式](https://moxiaodegu.github.io/2020/08/factory-mode/)
   - [构造函数模式](https://moxiaodegu.github.io/2020/08/Function/)
@@ -58,6 +57,7 @@ layout: post
 - [栈、队列和线性表](https://moxiaodegu.github.io/2020/01/stack-queue/)
 
 ### Node
+
 ---
 
 - Nestjs
@@ -69,6 +69,7 @@ layout: post
 <!-- - [什么是node](https://moxiaodegu.github.io/2021/01/nodejs/) -->
 
 ### React
+
 ---
 
 - [React入门基础概念](https://moxiaodegu.github.io/2020/12/react-basics/)
