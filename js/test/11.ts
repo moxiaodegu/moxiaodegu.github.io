@@ -2,7 +2,7 @@
  * @Author: mayanli
  * @Date: 2023-02-01 11:15:11
  * @LastEditors: mayanli
- * @LastEditTime: 2023-02-13 18:42:42
+ * @LastEditTime: 2023-02-21 12:15:10
  * @Description: file content
  * @FilePath: /moxiaodegu.github.io/js/test/11.ts
  */
@@ -63,3 +63,21 @@ Function.prototype.bind1= function(that) {
   return temp
 }
 
+
+
+
+
+const p = Promise.resolve(true)
+console.log(p)
+setTimeout(() => {
+  console.log(p)
+}, 0)
+
+
+const arr = [2,3]
+const arr1 = [3,4,5]
+
+[...arr,...arr1].reduce((pre,cur)=>{
+  if (pre.includes(cur)) return pre;
+  return [...pre,cur]
+},[])
