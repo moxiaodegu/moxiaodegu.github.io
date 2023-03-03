@@ -81,3 +81,5 @@ const arr1 = [3,4,5]
   if (pre.includes(cur)) return pre;
   return [...pre,cur]
 },[])
+
+instanceof
