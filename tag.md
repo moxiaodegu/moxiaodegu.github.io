@@ -9,6 +9,7 @@ layout: post
 - [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
 - [变量提升/函数提升](https://moxiaodegu.github.io/2020/01/promote/)
 - [JS获取指定id、class元素](https://moxiaodegu.github.io/2020/01/getID/)
+- [给一个按钮绑定点击事件有哪些方法](https://moxiaodegu.github.io/2020/01/onclick/)
 - [script标签](https://moxiaodegu.github.io/2020/04/script/)
 - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
 - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
