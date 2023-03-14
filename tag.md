@@ -4,51 +4,41 @@ tags: blog
 layout: post
 ---
 
-## 面试
-
----
-
-## 学习笔记
-
----
-
 ### JavaScript
 
-- 语言基础
-  - [script标签](https://moxiaodegu.github.io/2020/04/script/)
-  - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
-  - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
-  - [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
-  - [数据类型有哪些](https://moxiaodegu.github.io/2020/03/dataType/)
-  - [基本类型和引用类型有哪些不同](https://moxiaodegu.github.io/2020/01/make-difference/)
-  - [判断数据类型的几种方法](https://moxiaodegu.github.io/2020/01/data-type-judgment/)
-  - [单例内置对象](https://moxiaodegu.github.io/2020/01/singleton-built-object/)
-  - [Object](https://moxiaodegu.github.io/2020/01/object/)
-  - [Array](https://moxiaodegu.github.io/2020/02/array/)
-  - [Map & Set](https://moxiaodegu.github.io/2020/02/map-and-set/)
-  - [weakMap & weakSet](https://moxiaodegu.github.io/2020/02/weakmap-and-weakset/)
-  - [DOM](https://moxiaodegu.github.io/2020/02/dom/)
-- 迭代器与生成器
-  - [迭代器](https://moxiaodegu.github.io/2020/02/iterator/)
-  - [生成器](https://moxiaodegu.github.io/2020/02/generator/)
-- 编译执行
-  - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
-  - [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
-- 类与面向对象
-  - [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
-  - [理解原型](https://moxiaodegu.github.io/2020/12/prototype-inherit/)
-  - [理解继承](https://moxiaodegu.github.io/2020/12/inherit/)
-  - [理解类](https://moxiaodegu.github.io/2020/12/class/)
-- 代理
-  - [代理proxy](https://moxiaodegu.github.io/2020/12/proxy/)
-- 函数和异步编程
-  - [函数](https://moxiaodegu.github.io/2020/12/function/)
-  - [Promise](https://moxiaodegu.github.io/2020/12/promise/)
-- 设计模式
-  - [工厂模式](https://moxiaodegu.github.io/2020/08/factory-mode/)
-  - [构造函数模式](https://moxiaodegu.github.io/2020/08/Function/)
-  - [原型模式](https://moxiaodegu.github.io/2020/08/prototype/)
-  - [原型模式/构造函数模式/工厂模式](https://moxiaodegu.github.io/2020/06/object-create-Function/)
+- [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
+- [变量提升/函数提升](https://moxiaodegu.github.io/2020/01/promote/)
+- [JS获取指定id、class元素](https://moxiaodegu.github.io/2020/01/getID/)
+- [script标签](https://moxiaodegu.github.io/2020/04/script/)
+- [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
+- [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
+- [数据类型有哪些](https://moxiaodegu.github.io/2020/03/dataType/)
+- [基本类型和引用类型有哪些不同](https://moxiaodegu.github.io/2020/01/make-difference/)
+- [判断数据类型的几种方法](https://moxiaodegu.github.io/2020/01/data-type-judgment/)
+- [单例内置对象](https://moxiaodegu.github.io/2020/01/singleton-built-object/)
+- [Object](https://moxiaodegu.github.io/2020/01/object/)
+- [Array](https://moxiaodegu.github.io/2020/02/array/)
+- [Map & Set](https://moxiaodegu.github.io/2020/02/map-and-set/)
+- [weakMap & weakSet](https://moxiaodegu.github.io/2020/02/weakmap-and-weakset/)
+- [DOM](https://moxiaodegu.github.io/2020/02/dom/)
+- [迭代器](https://moxiaodegu.github.io/2020/02/iterator/)
+- [生成器](https://moxiaodegu.github.io/2020/02/generator/)
+- [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
+- [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
+- [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
+- [理解原型](https://moxiaodegu.github.io/2020/12/prototype-inherit/)
+- [理解继承](https://moxiaodegu.github.io/2020/12/inherit/)
+- [理解类](https://moxiaodegu.github.io/2020/12/class/)
+- [代理proxy](https://moxiaodegu.github.io/2020/12/proxy/)
+- [函数](https://moxiaodegu.github.io/2020/12/function/)
+- [Promise](https://moxiaodegu.github.io/2020/12/promise/)
+
+### 设计模式
+
+- [工厂模式](https://moxiaodegu.github.io/2020/08/factory-mode/)
+- [构造函数模式](https://moxiaodegu.github.io/2020/08/Function/)
+- [原型模式](https://moxiaodegu.github.io/2020/08/prototype/)
+- [原型模式/构造函数模式/工厂模式](https://moxiaodegu.github.io/2020/06/object-create-Function/)
 
 ### 数据结构和算法
 
