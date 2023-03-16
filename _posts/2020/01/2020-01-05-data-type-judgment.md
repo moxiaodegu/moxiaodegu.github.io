@@ -16,7 +16,6 @@ layout: post
 ```javascript
     const str = "str"
     typeof str // "string"
-
 ```
 
 **instanceof**
@@ -24,7 +23,7 @@ layout: post
 通过原型链判断A是否为B的实例，表达式为：A instanceof B，如果 A 是 B 的实例，则返回 true,否则返回 false。
 
 - 能准确判断引用数据类型，不能判断基本数据类型
-- 它的内部机制是通过判断对象的原型链中能否出现过这个构造函数
+- 它的内部机制是通过判断A的原型链上是否有B的原型
 - null instanceof Object // false
   
 ```javascript
@@ -34,42 +33,57 @@ layout: post
     str1 instanceof String // true
 ```
 
+**如何实现一个instanceof**
+
+```javascript
+  function instanceofFun(left,right) {
+    // 基础类型都返回false
+    if ( left == null || ( typeof left !== 'function'  && typeof left !== 'object')) {
+      return false
+    }
+    let a = left.__proto__
+    const b = right.prototype
+    while(true) {
+      if (a === b) return true
+      if (a === null) return false
+      a = a.__proto__
+    }
+  }
+  console.log(instanceofFun([],Array))
+```
+
 **constructor**
 
 当一个函数 F被定义时，JS引擎会为F添加 prototype 原型，然后再在 prototype上添加一个 constructor 属性，并让其指向 F 的引用。
 
 判断实例的指向原型的constructor的值是否是某个构造函数
 
-原理：我们知道根据构造函数创建实例，这个实例对象的原型钩子也就是隐式prototype也就是浏览器的__proto__指向了构造函数的原型prototype，原型prototype对象的constructor指向了这个原型
-
 - constructor 是原型prototype的一个属性。
 - null undefined 没有constructor属性，所以不能判断
-- 函数的 constructor 是不稳定的，这个主要体现在自定义对象上，当开发者重写 prototype 后，原有的 constructor 引用会丢失，constructor 会默认为 Object
+- constructor 容易被改写
   
 ```javascript
     const str = "str"
     str.constructor === String // true
-
 ```
 
 **toString**
 
 toString() 是 Object 的原型方法，调用该方法，默认返回当前对象的 [[Class]] 。这是一个内部属性，其格式为 [object Xxx] ，其中 Xxx 就是对象的类型。
-
-- 对于 Object 对象，直接调用 toString()  就能返回 [object Object] 。而对于其他对象，则需要通过 call / apply 来调用才能返回正确的类型信息。
   
 ```javascript
     Object.prototype.toString.call("123") // "[object String]"
-    Object.prototype.toString({}) // "[object Object]"
 ```
 
-***isPrototypeOf***
+**isPrototypeOf**
 
-原型方法，只适用于引用类型，判断当前实例的__proto__是否指向原型链上的原型
+等同于instanceof
+
+原型方法，只适用于引用类型，判断当前实例的__proto__是否指向原型链上的原型，
 
 ```javascript
     const a = new String('aa')
-    String.prototype.isPrototype(a)
+    String.prototype.isPrototypeof(a)
 ```
 
 **其他方法**
