@@ -10,6 +10,7 @@ layout: post
 - [变量提升/函数提升](https://moxiaodegu.github.io/2020/01/promote/)
 - [JS获取指定id、class元素](https://moxiaodegu.github.io/2020/01/getID/)
 - [给一个按钮绑定点击事件有哪些方法](https://moxiaodegu.github.io/2020/01/onclick/)
+- [怎么遍历对象、数组，怎么排序数组](https://moxiaodegu.github.io/2020/01/ergodic/)
 - [script标签](https://moxiaodegu.github.io/2020/04/script/)
 - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
 - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
