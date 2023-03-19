@@ -6,37 +6,62 @@ layout: post
 
 ### JavaScript
 
-- [let、const和var的区别](moxiaodegu.github.io/_posts/javascript/变量和作用域/let-var-const.md)
+变量和作用域
+
+- [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
 - [变量提升/函数提升](https://moxiaodegu.github.io/2020/01/promote/)
-- [JS获取指定id、class元素](https://moxiaodegu.github.io/2020/01/getID/)
-- [给一个按钮绑定点击事件有哪些方法](https://moxiaodegu.github.io/2020/01/onclick/)
-- [怎么遍历对象、数组，怎么排序数组](https://moxiaodegu.github.io/2020/01/ergodic/)
-- [封装获取、修改URL参数的方法](https://moxiaodegu.github.io/2020/01/getParams/)
-- [实现addClassName、removeClassName方法](https://moxiaodegu.github.io/2020/01/addClassName/)
-- [实现addClassName、removeClassName方法](https://moxiaodegu.github.io/2020/01/addClassName/)
-- [作用域、作用域链，怎么理解](https://moxiaodegu.github.io/2020/01/scope/)
-- [script标签](https://moxiaodegu.github.io/2020/04/script/)
-- [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
-- [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
 - [数据类型有哪些](https://moxiaodegu.github.io/2020/03/dataType/)
 - [基本类型和引用类型有哪些不同](https://moxiaodegu.github.io/2020/01/make-difference/)
 - [判断数据类型的几种方法](https://moxiaodegu.github.io/2020/01/data-type-judgment/)
+- [作用域、作用域链，怎么理解](https://moxiaodegu.github.io/2020/01/scope/)
+
+Dom
+
+- [JS获取指定id、class元素](https://moxiaodegu.github.io/2020/01/getID/)
+- [给一个按钮绑定点击事件有哪些方法](https://moxiaodegu.github.io/2020/01/onclick/)
+- [实现addClassName、removeClassName方法](https://moxiaodegu.github.io/2020/01/addClassName/)
+- [DOM](https://moxiaodegu.github.io/2020/02/dom/)
+
+数组和对象
+
+- [怎么遍历对象、数组，怎么排序数组](https://moxiaodegu.github.io/2020/01/ergodic/)
 - [单例内置对象](https://moxiaodegu.github.io/2020/01/singleton-built-object/)
 - [Object](https://moxiaodegu.github.io/2020/01/object/)
 - [Array](https://moxiaodegu.github.io/2020/02/array/)
 - [Map & Set](https://moxiaodegu.github.io/2020/02/map-and-set/)
 - [weakMap & weakSet](https://moxiaodegu.github.io/2020/02/weakmap-and-weakset/)
-- [DOM](https://moxiaodegu.github.io/2020/02/dom/)
-- [迭代器](https://moxiaodegu.github.io/2020/02/iterator/)
-- [生成器](https://moxiaodegu.github.io/2020/02/generator/)
+
+函数/类
+
+- [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
+- [函数](https://moxiaodegu.github.io/2020/12/function/)
+- [理解类](https://moxiaodegu.github.io/2020/12/class/)
+
+Bom/浏览器
+
+- [封装获取、修改URL参数的方法](https://moxiaodegu.github.io/2020/01/getParams/)
+- [script标签](https://moxiaodegu.github.io/2020/04/script/)
+- [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
+- [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
 - [JavaScript事件循环机制](https://moxiaodegu.github.io/2021/01/eventloop/)
 - [JavaScript预编译都做了哪些事](https://moxiaodegu.github.io/2021/01/precompile/)
-- [new运算符到底做了什么](https://moxiaodegu.github.io/2020/12/new/)
+
+迭代器/生成器
+
+- [迭代器](https://moxiaodegu.github.io/2020/02/iterator/)
+- [生成器](https://moxiaodegu.github.io/2020/02/generator/)
+
+原型和继承
+
 - [理解原型](https://moxiaodegu.github.io/2020/12/prototype-inherit/)
 - [理解继承](https://moxiaodegu.github.io/2020/12/inherit/)
-- [理解类](https://moxiaodegu.github.io/2020/12/class/)
+
+代理
+
 - [代理proxy](https://moxiaodegu.github.io/2020/12/proxy/)
-- [函数](https://moxiaodegu.github.io/2020/12/function/)
+
+异步
+
 - [Promise](https://moxiaodegu.github.io/2020/12/promise/)
 
 ### 设计模式
