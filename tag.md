@@ -6,13 +6,15 @@ layout: post
 
 ### JavaScript
 
-- [let、const和var的区别](https://moxiaodegu.github.io/2020/01/let-var/)
+- [let、const和var的区别](moxiaodegu.github.io/_posts/javascript/变量和作用域/let-var-const.md)
 - [变量提升/函数提升](https://moxiaodegu.github.io/2020/01/promote/)
 - [JS获取指定id、class元素](https://moxiaodegu.github.io/2020/01/getID/)
 - [给一个按钮绑定点击事件有哪些方法](https://moxiaodegu.github.io/2020/01/onclick/)
 - [怎么遍历对象、数组，怎么排序数组](https://moxiaodegu.github.io/2020/01/ergodic/)
 - [封装获取、修改URL参数的方法](https://moxiaodegu.github.io/2020/01/getParams/)
 - [实现addClassName、removeClassName方法](https://moxiaodegu.github.io/2020/01/addClassName/)
+- [实现addClassName、removeClassName方法](https://moxiaodegu.github.io/2020/01/addClassName/)
+- [作用域、作用域链，怎么理解](https://moxiaodegu.github.io/2020/01/scope/)
 - [script标签](https://moxiaodegu.github.io/2020/04/script/)
 - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
 - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
@@ -49,6 +51,7 @@ layout: post
 - [js遍历树形结构并合并相同节点](https://moxiaodegu.github.io/2020/08/traversal-tree-structure/)
 - [栈、队列和线性表](https://moxiaodegu.github.io/2020/01/stack-queue/)
 - [算法排序](https://moxiaodegu.github.io/2020/01/sort/)
+
 ### Node
 
 - Nestjs
