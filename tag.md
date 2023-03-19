@@ -46,7 +46,7 @@ layout: post
 
 - [js遍历树形结构并合并相同节点](https://moxiaodegu.github.io/2020/08/traversal-tree-structure/)
 - [栈、队列和线性表](https://moxiaodegu.github.io/2020/01/stack-queue/)
-
+- [算法排序](https://moxiaodegu.github.io/2020/01/sort/)
 ### Node
 
 - Nestjs
