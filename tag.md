@@ -12,6 +12,7 @@ layout: post
 - [给一个按钮绑定点击事件有哪些方法](https://moxiaodegu.github.io/2020/01/onclick/)
 - [怎么遍历对象、数组，怎么排序数组](https://moxiaodegu.github.io/2020/01/ergodic/)
 - [封装获取、修改URL参数的方法](https://moxiaodegu.github.io/2020/01/getParams/)
+- [实现addClassName、removeClassName方法](https://moxiaodegu.github.io/2020/01/addClassName/)
 - [script标签](https://moxiaodegu.github.io/2020/04/script/)
 - [内存和垃圾回收机制](https://moxiaodegu.github.io/2020/04/memory/)
 - [执行上下文和作用域](https://moxiaodegu.github.io/2020/05/execution-context/)
