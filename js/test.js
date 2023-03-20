@@ -92,3 +92,27 @@ Function.prototype.bind = (that) => {
   return temp
 
 }
+
+
+const a = 1
+function foo() {
+  console.log(this.a)
+}
+const obj = {
+  a:2,
+  foo
+}
+
+foo() // 1
+
+obj.foo() // 2
+
+
+function factory(Fun) {
+  let obj = new Object() // 创建一个对象
+  const args = [...arguments].slice(1)
+  obj.__proto__ = Fun.prototype // 把对象的__proto__指向构造函数的原型
+  obj.constructor = Fun // 对象的constructor指向构造函数本身
+  Fun.apply(obj,args) // 将构造函数的this指向对象并执行
+  return obj
+}
