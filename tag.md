@@ -14,6 +14,7 @@ layout: post
 - [基本类型和引用类型有哪些不同](https://moxiaodegu.github.io/2020/01/make-difference/)
 - [判断数据类型的几种方法](https://moxiaodegu.github.io/2020/01/data-type-judgment/)
 - [作用域、作用域链，怎么理解](https://moxiaodegu.github.io/2020/01/scope/)
+- [this指向](https://moxiaodegu.github.io/2020/03/this/)
 
 Dom
 

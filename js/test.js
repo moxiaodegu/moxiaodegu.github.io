@@ -67,3 +67,52 @@ function selectSort(arr) {
 }
 
 console.log(selectSort(arr))
+
+
+
+Function.prototype.apply = (that, arr) => {
+  if (!Array.isArray(arr)) {
+    return new Error('参数错误')
+  }
+  that.fn = this;
+  return that.fn(...arr)
+}
+
+
+Function.prototype.bind = (that) => {
+  if (typeof that !== 'function') {
+    return new Error('请在函数后调用')
+  }
+  const args = [...arguments].slice(1)
+  const temp = function () {
+    return this.apply(that,args)
+  }
+
+  temp.prototype = this.prototype
+  return temp
+
+}
+
+
+const a = 1
+function foo() {
+  console.log(this.a)
+}
+const obj = {
+  a:2,
+  foo
+}
+
+foo() // 1
+
+obj.foo() // 2
+
+
+function factory(Fun) {
+  let obj = new Object() // 创建一个对象
+  const args = [...arguments].slice(1)
+  obj.__proto__ = Fun.prototype // 把对象的__proto__指向构造函数的原型
+  obj.constructor = Fun // 对象的constructor指向构造函数本身
+  Fun.apply(obj,args) // 将构造函数的this指向对象并执行
+  return obj
+}
