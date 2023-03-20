@@ -67,3 +67,28 @@ function selectSort(arr) {
 }
 
 console.log(selectSort(arr))
+
+
+
+Function.prototype.apply = (that, arr) => {
+  if (!Array.isArray(arr)) {
+    return new Error('参数错误')
+  }
+  that.fn = this;
+  return that.fn(...arr)
+}
+
+
+Function.prototype.bind = (that) => {
+  if (typeof that !== 'function') {
+    return new Error('请在函数后调用')
+  }
+  const args = [...arguments].slice(1)
+  const temp = function () {
+    return this.apply(that,args)
+  }
+
+  temp.prototype = this.prototype
+  return temp
+
+}
